@@ -57,6 +57,7 @@ class Parser(Simulation):
 					if not line:
 						self.comments += 1
 						continue
+
 					line = line.split(":", 1)
 					line = [s.strip() for s in line]
 
@@ -105,13 +106,14 @@ class Parser(Simulation):
 		"""
 			Method to validate the nb of drones argument .
 		"""
+
 		if self.graph.drone_count:
 			raise ParsingError(
 				f"Line {index}: Duplicate 'nb_drones' declaration.\n"
 				"Only one 'nb_drones' declaration is allowed."
 			)
 
-		tokens = line[1].split()
+		tokens = line[1].split() if len(line) > 1 else None
 
 		if not tokens:
 			raise ParsingError(
@@ -119,12 +121,11 @@ class Parser(Simulation):
 				"Expected:\n"
 				"    nb_drones: <positive_integer>"
 			)
-		elif len(tokens) > 1:
-			if not tokens[1].startswith("#"):
-				raise ParsingError(
-					f"Line {index}: Invalid 'nb_drones' declaration.\n"
-					"Expected: nb_drones: <positive_integer>"
-				)
+		elif len(tokens) != 1:
+			raise ParsingError(
+				f"Line {index}: Invalid 'nb_drones' declaration.\n"
+				"Expected: nb_drones: <positive_integer>"
+			)
 
 		try:
 			nb = int(tokens[0])
@@ -137,7 +138,7 @@ class Parser(Simulation):
 			self.graph.drone_count = nb
 		except ValueError:
 			raise ParsingError(
-				f"Line {index}: Invalid drone count.\n"
+				f"Line {index}: Invalid drone count .\n"
 				"Expected a positive integer greater than zero.\n"
 				"Example:\n  nb_drones: 12"
 			)

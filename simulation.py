@@ -31,6 +31,7 @@ class Simulation:
         take the Graph obj with valid map and data and,
         extract the available path't to run the drone simulation .
     """
+
     def __init__(self, graph: Graph):
         """Initialize simulation obj with valid graph"""
         self.graph: Graph = graph
