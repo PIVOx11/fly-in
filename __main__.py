@@ -12,6 +12,7 @@ if __name__ == "__main__":
         exit(2)
     try:
         parse.generate_graph()
+        print(parse.graph)
     except ParsingError as e:
         print(f"[red]{e}[/red]")
         exit(2)

@@ -11,10 +11,10 @@ class Zone:
     def __init__(
             self,
             name: str,
-            zone_type: str,
             x: int, y: int,
             connections: list | None = None,
             color: str | None = None,
+            zone_type: str = None,
             max_dron: int = 1
             ):
         self.name = name
@@ -35,9 +35,10 @@ class Zone:
                 conect.append(c.first.name)                
         return (
             f"Name: {self.name}"
-            f" Type: {self.zone_type}"
-            f" Connectios: {conect}"
-            f" Drones[{self.drones} or empty]"
+            f" Cordonates: {self.x, self.y}"
+            f", Type: {self.zone_type}"
+            f", Connectios: {conect}"
+            f", Drones[{self.drones or 'empty'}]"
         )
 
 
@@ -76,11 +77,20 @@ class Graph:
 
     def __repr__(self):
         repr = [
-            f"Start: {self.start.name or 'None'}",
-            f"End: {self.end.name or 'None'}",
+            f"Start:",
+            f"End: ",
             "",
             "Zones:"
             ]
         for z in self.zones.values():
             repr.append(str(z))
         return "\n".join(repr)
+        # repr = [
+        #     f"Start: {self.start.name or 'None'}",
+        #     f"End: {self.end.name or 'None'}",
+        #     "",
+        #     "Zones:"
+        #     ]
+        # for z in self.zones.values():
+        #     repr.append(str(z))
+        # return "\n".join(repr)

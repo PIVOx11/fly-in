@@ -10,6 +10,7 @@ class Parser:
         self.graph = Graph()
         self.connections = []
         self.line_counter = 0
+        self.coordinates: list[tuple] = []
 
         try:
             self.file = open(file_path, "r")
@@ -39,7 +40,6 @@ class Parser:
 
             if line[0] == "nb_drones":
                 self.data["nb_drones"] = self.drone_nb_parser(line, line_c, comment)
-                print(self.data)
             elif line[0] == "start_hub" or\
                  line[0] == "end_hub" or line[0] == "hub":
                 self.hubs_parser(line, line_c)
@@ -48,7 +48,7 @@ class Parser:
             else:
                 raise ParsingError(f"Line {line_c} Unknown Key Argument '{line[0]}'")
         return self.graph
-    
+
     def drone_nb_parser(self, line: list[str], line_c: int, comment: int) -> int:
         """
             Parse and Validate The number of drones given and,
@@ -71,20 +71,19 @@ class Parser:
                 raise ParsingError(f"Line {line_c}: "\
                                     "Number of drones invalid cannot be zero or negative :(")
         return number
-    
-    
-
 
     def hubs_parser(self, line: list[str], line_c: int) -> None:
         if len(line) != 2:
             raise ParsingError(f"Line {line_c}: Invalid Line .")
-        arg = line[1].split()
-        print(f"Origine Line: {line}\n")
+        arg = line[1].strip().split(" ", 3)
+        print(arg , len(arg))
         if len(arg) not in (3, 4):
             raise ParsingError(f"Line {line_c}: Data Counte Invalide .")
         name, x, y, metadata = arg[0], arg[1], arg[2], None if len(arg) == 3 else arg[3]
         name = self.name_check(name)
-
+        cord = self.cordonate_validation(x, y)
+        zone = Zone(name=name, x=x, y=y)
+        self.graph.add_zone(zone)
 
     def name_check(self, name: str) -> str:
         name = name.strip()
@@ -99,12 +98,21 @@ class Parser:
             raise ParsingError(f"Line {self.line_counter}: "\
                                 "Zone Name Contain Dash '-'"\
                                 f" , example('path1', 'maze_1') are valid but {name} NOT .")
-
         return name
 
+    def cordonate_validation(self, x: int, y: int) -> tuple:
+        try:
+            x = int(x)
+            y = int(y)
+        except ValueError:
+            raise ParsingError(f"Line {self.line_counter}: "\
+                               "Invalid Conrdonate Should be valid integers .")
+        if (cord:=(x, y)) in self.coordinates:
+            raise ParsingError(f"Line {self.line_counter}: Coordinates duplecated {cord}.")
+        self.coordinates.append(cord)
+        return cord
 
-
-    def parse_metadata(metadata: list[str]):
+    def parse_metadata(self, metadata: list[str], zone: Zone):
         pass # To do
 
 
@@ -112,7 +120,7 @@ class Parser:
 
 
 
-# FILE EXAMPLE : 
+###             FILE EXAMPLE :              ###
 
 
 # # Easy Level 2: Simple fork with two paths
@@ -130,3 +138,12 @@ class Parser:
 # connection: path_a-goal
 # connection: path_b-goal
 
+
+# chnage the shitty if .. with calleble method's
+# handlers = {
+#     "nb_drones": self.drone_nb_parser,
+#     "hub": self.hubs_parser,
+#     "start_hub": self.hubs_parser,
+#     "end_hub": self.hubs_parser,
+#     "connection": self.connection_parser,
+# }
