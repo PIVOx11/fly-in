@@ -1,3 +1,12 @@
+class Drone:
+    def __init__(self, id: int):
+        self.id = id
+        pass # To work in it later :)
+
+    def __repr__(self):
+        return f"Drone Id: {self.id} ."
+
+
 class Zone:
     def __init__(
             self,
@@ -15,6 +24,7 @@ class Zone:
         self.connections = connections or []
         self.color = color
         self.max_dron = max_dron
+        self.drones: list[Drone] = []
 
     def __repr__(self):
         conect = []
@@ -27,6 +37,7 @@ class Zone:
             f"Name: {self.name}"
             f" Type: {self.zone_type}"
             f" Connectios: {conect}"
+            f" Drones[{self.drones} or empty]"
         )
 
 
@@ -50,6 +61,7 @@ class Graph:
         self.zones: dict = {}
         self.start: Zone = None
         self.end: Zone = None
+        self.size = 0
 
     def add_zone(self, zone):
         self.zones[zone.name] = zone
