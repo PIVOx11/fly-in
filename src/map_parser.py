@@ -8,7 +8,7 @@ class Parser:
             Create Graph obj (Graph()) and open map file 
         """
         self.graph = Graph()
-        self.connections = []
+        self.connections = {}
         self.coordinates: list[tuple] = []
 
         try:
@@ -47,9 +47,12 @@ class Parser:
                 handlers[line[0]](line, line_c)
             else:
                 raise ParsingError(f"Line {line_c} Unknown Key Argument '{line[0]}'")
-
             comment += 1
-        self.file.close()
+        if not self.graph.start or not self.graph.end:
+            raise ParsingError(f"There's no {'Start_hub' if not self.graph.start else 'End_hub'}"\
+                               " Provided .")
+        self.create_connections()
+
         return self.graph
 
     def drone_nb_parser(self, line: list[str], line_c: int) -> None:
@@ -181,16 +184,46 @@ class Parser:
         zone.max_drones = int(data.get("max_drones", 1))
         zone.zone_type = data.get("zone", "normal")
     def connection_handler(self, line, line_c):
-        line = line[1].strip().split()
+        capacity = 1
+        line = line[1].strip().split(" ", 1)
         if len(line) not in (1, 2):
             raise ParsingError(f"Line {line_c}: Wrong Connection Data format .\n"\
                                "Example: onnection: <name1>-<name2> [metadata]")
         zones = line[0].strip().split("-", 1)
-        if len(zones != 2):
+        if len(zones) != 2:
             raise ParsingError(f"Line {line_c}: Wrong Connection Between Zones .\n"\
                                "Example: <name1>-<name2>")
         zones.sort()
+        zones = tuple(zones)
         if zones in self.connections:
-            raise ParsingError(f"Line {line_c}: Connection between {"-".join(zones)} Are Duplacated :) .")
-        self.connections.append(zones)
-        print(zones)
+            raise ParsingError(f"Line {line_c}: Connection between {'-'.join(zones)} Are Duplacated :) .")
+        
+        if len(line) == 2:
+            metadata = line[1]
+            if not metadata.startswith("[") or not metadata.endswith("]"):
+                raise ParsingError(f"Line {line_c}: metadata invalid should " \
+                                "be inside \[metadata] .")
+            metadata = metadata.removeprefix("[").removesuffix("]").strip()
+            metadata = metadata = metadata.strip().split('=')
+            if len(metadata) != 2:
+                raise ParsingError(f"Line {line_c}: metadata invalid only drones capacity allowed .")
+            k, v = metadata
+            if k != "max_link_capacity":
+                raise ParsingError(f"Line {line_c}: metadata invalid only drones capacity allowed .")
+            if not v.isdigit():
+                raise ParsingError(f"Line {line_c}: drones capacity most be valid integer .")
+            if int(v) <= 0:
+                raise ParsingError(f"Line {line_c}: invalid metadata drones capacity most be valid integer .")
+            capacity = v
+        self.connections[zones] = capacity
+    
+    def create_connections(self):
+        for zones, capacity in self.connections.items():
+            zone1, zone2 = self.graph.zones.get(zones[0]), self.graph.zones.get(zones[1])
+
+            if not zone1:
+                raise ParsingError(f"Error Zone {zone1} Not included with Hubs")
+            if not zone1:
+                raise ParsingError(f"Error Zone {zone2} Not included with Hubs")
+            
+            self.graph.add_connection(zone1, zone2, capacity)
