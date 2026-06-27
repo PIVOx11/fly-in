@@ -15,7 +15,7 @@ class Zone:
             connections: list | None = None,
             color: str | None = None,
             zone_type: str = None,
-            max_dron: int = 1
+            max_drones: int = 1
             ):
         self.name = name
         self.zone_type = zone_type
@@ -23,7 +23,7 @@ class Zone:
         self.y = y
         self.connections = connections or []
         self.color = color
-        self.max_dron = max_dron
+        self.max_dron = max_drones
         self.drones: list[Drone] = []
 
     def __repr__(self):
@@ -35,7 +35,7 @@ class Zone:
                 conect.append(c.first.name)                
         return (
             f"Name: {self.name}"
-            f" Cordonates: {self.x, self.y}"
+            f", Cordonates: {self.x, self.y}"
             f", Type: {self.zone_type}"
             f", Connectios: {conect}"
             f", Drones[{self.drones or 'empty'}]"
@@ -63,6 +63,7 @@ class Graph:
         self.start: Zone = None
         self.end: Zone = None
         self.size = 0
+        self.drone_count = 0
 
     def add_zone(self, zone):
         self.zones[zone.name] = zone
@@ -77,20 +78,12 @@ class Graph:
 
     def __repr__(self):
         repr = [
-            f"Start:",
-            f"End: ",
+            f"Start_hub: {self.start}",
+            f"End_hub: {self.end}",
             "",
             "Zones:"
             ]
         for z in self.zones.values():
             repr.append(str(z))
         return "\n".join(repr)
-        # repr = [
-        #     f"Start: {self.start.name or 'None'}",
-        #     f"End: {self.end.name or 'None'}",
-        #     "",
-        #     "Zones:"
-        #     ]
-        # for z in self.zones.values():
-        #     repr.append(str(z))
-        # return "\n".join(repr)
+        
