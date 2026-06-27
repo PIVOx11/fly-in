@@ -30,7 +30,8 @@ class Parser:
             "nb_drones": self.drone_nb_parser,
             "hub": self.hubs_parser,
             "start_hub": self.hubs_parser,
-            "end_hub": self.hubs_parser
+            "end_hub": self.hubs_parser,
+            "connection":self.connection_handler
         }
 
         for line_c, line in enumerate(self.file, start=1):
@@ -179,3 +180,17 @@ class Parser:
         zone.color = data.get("color", None)
         zone.max_drones = int(data.get("max_drones", 1))
         zone.zone_type = data.get("zone", "normal")
+    def connection_handler(self, line, line_c):
+        line = line[1].strip().split()
+        if len(line) not in (1, 2):
+            raise ParsingError(f"Line {line_c}: Wrong Connection Data format .\n"\
+                               "Example: onnection: <name1>-<name2> [metadata]")
+        zones = line[0].strip().split("-", 1)
+        if len(zones != 2):
+            raise ParsingError(f"Line {line_c}: Wrong Connection Between Zones .\n"\
+                               "Example: <name1>-<name2>")
+        zones.sort()
+        if zones in self.connections:
+            raise ParsingError(f"Line {line_c}: Connection between {"-".join(zones)} Are Duplacated :) .")
+        self.connections.append(zones)
+        print(zones)
