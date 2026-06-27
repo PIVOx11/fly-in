@@ -39,18 +39,15 @@ class Parser:
             if line.startswith("#") or not line:
                 comment += 1
                 continue
-
             line = line.split(":")
-
             if line_c - comment > 1 and not self.graph.drone_count:
                 raise ParsingError("dron_nb not At the begenning of the file .")
             if line[0] in handlers:
                 handlers[line[0]](line, line_c)
-            # else:
-            #     raise ParsingError(f"Line {line_c} Unknown Key Argument '{line[0]}'")
+            else:
+                raise ParsingError(f"Line {line_c} Unknown Key Argument '{line[0]}'")
 
             comment += 1
-
         self.file.close()
         return self.graph
 
@@ -90,7 +87,6 @@ class Parser:
             if self.graph.end:
                 raise ParsingError(f"Line {line_c}: End_hub are duplacated, "\
                                    "Should be only one start_hub and end_hub .")
-
         arg = line[1].strip().split(" ", 3)
         if len(arg) not in (3, 4):
             raise ParsingError(f"Line {line_c}: Data Counte Invalide .")
@@ -142,10 +138,7 @@ class Parser:
             "color": None,
             "max_drones": 1
         }
-        data = {
-
-        }
-
+        data = {}
         metadata = metadata.strip()
         if not metadata.startswith("[") or not metadata.endswith("]"):
             raise ParsingError(f"Line {line_c}: metadata invalid should " \
@@ -186,5 +179,3 @@ class Parser:
         zone.color = data.get("color", None)
         zone.max_drones = int(data.get("max_drones", 1))
         zone.zone_type = data.get("zone", "normal")
-    def set_default_arg(self, zone: Zone):
-        pass
