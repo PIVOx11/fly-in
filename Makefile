@@ -5,3 +5,6 @@ install_maps:
 
 clean:
 	rm -rf src/__pycache__
+
+flake:
+	flake8 __main__.py src/ 

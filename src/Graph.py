@@ -1,10 +1,9 @@
 class Drone:
     def __init__(self, id: int):
         self.id = id
-        pass # To work in it later :)
 
     def __repr__(self):
-        return f"Drone Id: {self.id} ."
+        return f"Drone Id: {self.id}"
 
 
 class Zone:
@@ -32,13 +31,13 @@ class Zone:
             if c.first == self:
                 conect.append(c.second.name)
             else:
-                conect.append(c.first.name)                
+                conect.append(c.first.name)
         return (
-            f"Name: {self.name}"
-            f", Cordonates: {self.x, self.y}"
-            f", Type: {self.zone_type}"
-            f", Connectios: {conect}"
-            f", Drones[{self.drones or 'empty'}]"
+            f"===== Name: {self.name} ======"
+            f"\nCordonates: {self.x, self.y}"
+            f"\nType: {self.zone_type}"
+            f"\nConnectios: {conect}"
+            f"\nDrones[{self.drones or 'empty'}]\n"
         )
 
 
@@ -52,9 +51,11 @@ class Connection:
         self.first = first
         self.second = second
         self.dron_capacity = dron_capacity
+
     def __repr__(self):
         size = self.dron_capacity
-        return f"{self.first.name} <---> {self.second.name} : dron_capacity={size}"
+        return (f"{self.first.name} <---> {self.second.name} : "
+                f"dron_capacity={size}")
 
 
 class Graph:
@@ -78,12 +79,11 @@ class Graph:
 
     def __repr__(self):
         repr = [
-            f"Start_hub: {self.start}",
-            f"End_hub: {self.end}",
+            f"Start_hub:\n {self.start}",
+            f"End_hub:\n {self.end}",
             "",
             "Zones:"
             ]
         for z in self.zones.values():
             repr.append(str(z))
         return "\n".join(repr)
-        
