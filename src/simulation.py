@@ -12,13 +12,11 @@ class Simulation:
         self.graph_validate()
 
     def graph_validate(self) -> list[Zone] | None:
-        path = self.bfs_search(self.graph, self.graph.start, self.graph.end)
+        path = self.bfs_search(self.graph.start, self.graph.end)
         if not path:
             raise SimulationError(
                 "There is no path between start and end point .")
         print(path)
-
-    from collections import deque
 
     def bfs_search(self, start: Zone, target: Zone):
         queue = deque([start])

@@ -24,6 +24,7 @@ class Zone:
         self.color = color
         self.max_dron = max_drones
         self.drones: list[Drone] = []
+        self.capacity = 0
 
     def __repr__(self):
         conect = []
