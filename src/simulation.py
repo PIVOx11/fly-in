@@ -47,6 +47,7 @@ class Simulation:
         for drone in self.graph.start.drones:
             drone.path = path
         turnes = 1
+        
         while not self.graph.simulation_end:
             if self.graph.delevred == self.graph.drone_count:
                 self.graph.simulation_end = True
@@ -61,4 +62,4 @@ class Simulation:
         # cheak the connection capacity
         # check the zone capacity
 
-        if drone.path[drone.path_pos].capacity 
+        if not drone.path[drone.path_pos].is_full():

@@ -28,6 +28,11 @@ class Zone:
         self.drones: list[Drone] = []
         self.capacity = 0
 
+    def is_full(self) -> bool:
+        if self.capacity == self.max_dron:
+            return True
+        return False
+    
     def __repr__(self):
         conect = []
         for c in self.connections:
