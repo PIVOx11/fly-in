@@ -56,7 +56,7 @@ class Parser:
                 f"{'Start_hub' if not self.graph.start else 'End_hub'} "
                 "Provided .")
         self.create_connections()
-        self.graph.start.drones = \
+        self.graph.drones = \
             [Drone(x) for x in range(1, self.graph.drone_count + 1)]
         return self.graph
 

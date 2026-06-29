@@ -1,5 +1,5 @@
 from .error_handling import SimulationError
-from .Graph import Graph, Zone
+from .Graph import Graph, Zone, Dron
 from collections import deque
 
 
@@ -29,7 +29,7 @@ class Simulation:
             if zone == target:
                 path = []
                 while zone is not None:
-                    path.append(zone.name)
+                    path.append(zone)
                     zone = parent[zone]
                 return path[::-1]
 
@@ -41,3 +41,24 @@ class Simulation:
                     parent[n] = zone
                     queue.append(n)
         return None
+
+    def run(self):
+        path = self.bfs_search(self.graph.start, self.graph.end)
+        for drone in self.graph.start.drones:
+            drone.path = path
+        turnes = 1
+        while not self.graph.simulation_end:
+            if self.graph.delevred == self.graph.drone_count:
+                self.graph.simulation_end = True
+            print(f"Turnes {turnes}: ")
+            for drone in self.graph.drones:
+                if drone.path_pos == len(drone.path) - 1:
+                    self.graph.delevred += 1
+                    continue
+                self.can_move(drone)
+
+    def can_move(self, drone: Dron):
+        # cheak the connection capacity
+        # check the zone capacity
+
+        if drone.path[drone.path_pos].capacity 

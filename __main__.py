@@ -3,6 +3,7 @@ from src.error_handling import ParsingError, SimulationError
 import sys
 from src.simulation import Simulation
 # from src.display import GraphViewer
+
 if __name__ == "__main__":
     from rich import print
 

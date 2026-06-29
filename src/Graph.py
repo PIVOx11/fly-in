@@ -1,6 +1,8 @@
 class Drone:
     def __init__(self, id: int):
         self.id = id
+        self.path = []
+        self.path_pos = 0
 
     def __repr__(self):
         return f"Drone Id: {self.id}"
@@ -61,11 +63,14 @@ class Connection:
 
 class Graph:
     def __init__(self):
+        self.drones = []
         self.zones: dict = {}
         self.start: Zone = None
         self.end: Zone = None
         self.size = 0
         self.drone_count = 0
+        self.delevred = 0
+        self.simulation_end = False
 
     def add_zone(self, zone):
         self.zones[zone.name] = zone
