@@ -2,7 +2,8 @@ class Drone:
     def __init__(self, id: int):
         self.id = id
         self.path = []
-        self.path_pos = 0
+        self.index = 0
+        self.finish = False
 
     def __repr__(self):
         return f"Drone Id: {self.id}"
@@ -26,10 +27,9 @@ class Zone:
         self.color = color
         self.max_dron = max_drones
         self.drones: list[Drone] = []
-        self.capacity = 0
 
     def is_full(self) -> bool:
-        if self.capacity == self.max_dron:
+        if len(self.drones) >= self.max_dron:
             return True
         return False
     
@@ -54,20 +54,20 @@ class Connection:
             self,
             first: Zone,
             second: Zone,
-            dron_capacity: int = 1
+            capacity: int = 1
             ):
         self.first = first
         self.second = second
-        self.dron_capacity = dron_capacity
-        self.to_delever = []
+        self.capacity = capacity
+        self.to_delever = 0
 
     def can_delever(self):
-        if len(self.to_delever) >= self.dron_capacity:
+        if self.to_delever >= self.capacity:
             return False
         return True
 
     def __repr__(self):
-        size = self.dron_capacity
+        size = self.capacity
         return (f"{self.first.name} <---> {self.second.name} : "
                 f"dron_capacity={size}")
 

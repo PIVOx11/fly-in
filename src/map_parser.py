@@ -55,11 +55,11 @@ class Parser:
                 "There's no "
                 f"{'Start_hub' if not self.graph.start else 'End_hub'} "
                 "Provided .")
-        self.graph.end.capacity = 100000
         self.create_connections()
         self.graph.drones = \
             [Drone(x) for x in range(1, self.graph.drone_count + 1)]
-        self.graph.start.drones = self.graph.drones
+        self.graph.start.drones = self.graph.drones[:]
+        self.graph.end.max_dron = 100000
         return self.graph
 
     def drone_nb_parser(self, line: list[str], line_c: int) -> None:

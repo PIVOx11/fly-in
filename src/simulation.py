@@ -44,27 +44,47 @@ class Simulation:
 
     def run(self):
         s_path = self.bfs_search(self.graph.start, self.graph.end)
-        for drone in self.graph.start.drones:
+        for drone in self.graph.drones:
             drone.path = s_path
-        turnes = 1
-        
-        while not self.graph.simulation_end:
-            if self.graph.delevred == self.graph.drone_count:
-                self.graph.simulation_end = True
-            print(f"Turnes {turnes}: =============================")
+
+        turns = 1
+        while self.graph.delevred < self.graph.drone_count:
+            print(f"Turn {turns}: ==================================")
+            move = []
+            connections = []
+
             for drone in self.graph.drones:
-                if drone.path_pos == len(drone.path) - 1:
+                if drone.finish:
+                    continue
+
+                if drone.index == len(drone.path)-1:
+                    drone.finish = True
                     self.graph.delevred += 1
                     continue
-                self.can_move(drone)
-                exit(1)
 
-    def can_move(self, drone: Drone) -> bool:
+                next_zone = drone.path[drone.index + 1]
+                connection = drone.path[drone.index].connections[next_zone.name]
+
+                if self.can_move(drone, next_zone, connection):
+                    connections.append(connection)
+                    move.append(drone)
+
+            for drone in move:
+                drone.path[drone.index].drones.remove(drone)
+                drone.index += 1
+                print(drone, f", Move to {drone.path[drone.index].name}, max to fitt {drone.path[drone.index].max_drones}\n")
+            for c in connections:
+                c.to_delever -= 1
+            turns += 1
+
+    def can_move(self, drone, next_zone, connection) -> bool:
         # cheak the connection capacity
         # check the zone capacity
-        target_zone = drone.path[drone.path_pos + 1]
-        connection = drone.path[drone.path_pos].connections[target_zone.name]
+        
+        if not drone.path[drone.index + 1].is_full():
+            if connection.can_delever():
+                next_zone.drones.append(drone)
+                connection.to_delever += 1
+                return True
+        return False
 
-        print(connection)
-        # if not drone.path[drone.path_pos + 1].is_full():
-        #     if drone[drone.path_pos].
