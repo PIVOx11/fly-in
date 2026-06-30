@@ -1,5 +1,5 @@
 from .error_handling import SimulationError
-from .Graph import Graph, Zone, Dron
+from .Graph import Graph, Zone, Drone
 from collections import deque
 
 
@@ -33,7 +33,7 @@ class Simulation:
                     zone = parent[zone]
                 return path[::-1]
 
-            for connection in zone.connections:
+            for connection in zone.connections.values():
                 n = connection.first if connection.first != zone\
                     else connection.second
                 if n not in visited and n.zone_type != "blocked":
@@ -43,23 +43,28 @@ class Simulation:
         return None
 
     def run(self):
-        path = self.bfs_search(self.graph.start, self.graph.end)
+        s_path = self.bfs_search(self.graph.start, self.graph.end)
         for drone in self.graph.start.drones:
-            drone.path = path
+            drone.path = s_path
         turnes = 1
         
         while not self.graph.simulation_end:
             if self.graph.delevred == self.graph.drone_count:
                 self.graph.simulation_end = True
-            print(f"Turnes {turnes}: ")
+            print(f"Turnes {turnes}: =============================")
             for drone in self.graph.drones:
                 if drone.path_pos == len(drone.path) - 1:
                     self.graph.delevred += 1
                     continue
                 self.can_move(drone)
+                exit(1)
 
-    def can_move(self, drone: Dron):
+    def can_move(self, drone: Drone) -> bool:
         # cheak the connection capacity
         # check the zone capacity
+        target_zone = drone.path[drone.path_pos + 1]
+        connection = drone.path[drone.path_pos].connections[target_zone.name]
 
-        if not drone.path[drone.path_pos].is_full():
+        print(connection)
+        # if not drone.path[drone.path_pos + 1].is_full():
+        #     if drone[drone.path_pos].

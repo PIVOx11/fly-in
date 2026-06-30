@@ -22,7 +22,7 @@ class Zone:
         self.zone_type = zone_type
         self.x = x
         self.y = y
-        self.connections = connections or []
+        self.connections = connections or {}
         self.color = color
         self.max_dron = max_drones
         self.drones: list[Drone] = []
@@ -35,7 +35,7 @@ class Zone:
     
     def __repr__(self):
         conect = []
-        for c in self.connections:
+        for c in self.connections.values():
             if c.first == self:
                 conect.append(c.second.name)
             else:
@@ -59,6 +59,12 @@ class Connection:
         self.first = first
         self.second = second
         self.dron_capacity = dron_capacity
+        self.to_delever = []
+
+    def can_delever(self):
+        if len(self.to_delever) >= self.dron_capacity:
+            return False
+        return True
 
     def __repr__(self):
         size = self.dron_capacity
@@ -85,8 +91,8 @@ class Graph:
                        second: Zone,
                        capacity: int = 1):
         connection = Connection(first, second, capacity)
-        first.connections.append(connection)
-        second.connections.append(connection)
+        first.connections[second.name] = connection
+        second.connections[first.name] = connection
 
     def __repr__(self):
         repr = [

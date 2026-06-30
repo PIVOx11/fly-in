@@ -55,9 +55,11 @@ class Parser:
                 "There's no "
                 f"{'Start_hub' if not self.graph.start else 'End_hub'} "
                 "Provided .")
+        self.graph.end.capacity = 100000
         self.create_connections()
         self.graph.drones = \
             [Drone(x) for x in range(1, self.graph.drone_count + 1)]
+        self.graph.start.drones = self.graph.drones
         return self.graph
 
     def drone_nb_parser(self, line: list[str], line_c: int) -> None:
@@ -254,7 +256,7 @@ class Parser:
             if not zone1:
                 raise ParsingError(
                     f"Error Zone {zone1} Not included with Hubs")
-            if not zone1:
+            if not zone2:
                 raise ParsingError(
                     f"Error Zone {zone2} Not included with Hubs")
             self.graph.add_connection(zone1, zone2, capacity)
