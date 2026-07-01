@@ -20,7 +20,7 @@ class Zone:
             max_drones: int = 1
             ):
         self.name = name
-        self.zone_type = zone_type
+        self.cost = zone_type
         self.x = x
         self.y = y
         self.connections = connections or {}
@@ -43,9 +43,10 @@ class Zone:
         return (
             f"===== Name: {self.name} ======"
             f"\nCordonates: {self.x, self.y}"
-            f"\nType: {self.zone_type}"
             f"\nConnectios: {conect}"
-            f"\nDrones[{self.drones or 'empty'}]\n"
+            f"\nDrones[{self.drones or 'empty'}]"
+            f"\nCapacity: {self.max_dron}"
+            f"\ncost: {self.cost}\n"
         )
 
 

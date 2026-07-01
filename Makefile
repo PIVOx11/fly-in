@@ -4,7 +4,7 @@ run:
 	uv run __main__.py ${MAP}
 
 install_maps:
-	wget https://cdn.intra.42.fr/document/document/49913/maps.tar.gz
+	wget https://cdn.intra.42.fr/document/document/53960/maps.tar.gz
 	@tar -xf maps.tar.gz
 	@rm -rf maps.tar.gz
 

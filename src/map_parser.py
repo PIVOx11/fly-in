@@ -59,7 +59,8 @@ class Parser:
         self.graph.drones = \
             [Drone(x) for x in range(1, self.graph.drone_count + 1)]
         self.graph.start.drones = self.graph.drones[:]
-        self.graph.end.max_dron = 100000
+        self.graph.end.max_dron = self.graph.drone_count + 1
+        self.graph.start.max_dron = self.graph.drone_count + 1
         return self.graph
 
     def drone_nb_parser(self, line: list[str], line_c: int) -> None:
@@ -152,7 +153,7 @@ class Parser:
             zone.zone_type = "normal"
             return
         allowed_data = {
-            "zone": {"normal", "priority", "restricted", "blocked"},
+            "zone": {"normal":1, "priority":1, "restricted":2, "blocked":float("inf")},
             "color": None,
             "max_drones": 1
         }
@@ -202,7 +203,10 @@ class Parser:
                 "Unkown Argument Fromat, exmple: \\[color=black] ...")
         zone.color = data.get("color", None)
         zone.max_drones = int(data.get("max_drones", 1))
-        zone.zone_type = data.get("zone", "normal")
+        if not data.get("zone"):
+            zone.cost = 1
+        else:
+            zone.cost = allowed_data["zone"][data["zone"]]
 
     def connection_handler(self, line, line_c):
         capacity = 1
