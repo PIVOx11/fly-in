@@ -71,8 +71,7 @@ class Simulation:
 
                 if neighbord.cost == float("inf") or neighbord in visited:
                     continue
-
-                new_dis = -9 + neighbord.cost
+                new_dis = distance[zone] + cost
 
                 if new_dis < distance[neighbord]:
                     distance[neighbord] = new_dis

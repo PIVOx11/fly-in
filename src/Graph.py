@@ -16,7 +16,7 @@ class Zone:
             x: int, y: int,
             connections: list | None = None,
             color: str | None = None,
-            zone_type: str = None,
+            zone_type: str = "normal",
             max_drones: int = 1
             ):
         self.name = name
@@ -27,6 +27,7 @@ class Zone:
         self.color = color
         self.max_dron = max_drones
         self.drones: list[Drone] = []
+        self.zone_type = zone_type
 
     def is_full(self) -> bool:
         if len(self.drones) >= self.max_dron:
@@ -47,6 +48,7 @@ class Zone:
             f"\nDrones[{self.drones or 'empty'}]"
             f"\nCapacity: {self.max_dron}"
             f"\ncost: {self.cost}\n"
+            f"\nZone_type: {self.zone_type}\n"
         )
 
 

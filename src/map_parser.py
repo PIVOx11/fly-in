@@ -207,6 +207,7 @@ class Parser:
             zone.cost = 1
         else:
             zone.cost = allowed_data["zone"][data["zone"]]
+            zone.zone_type = data["zone"]
 
     def connection_handler(self, line, line_c):
         capacity = 1

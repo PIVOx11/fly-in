@@ -12,7 +12,7 @@ if __name__ == "__main__":
         graph = parse.generate_graph()
         # print(graph)
         sim = Simulation(graph)
-        # print(sim.bfs_search(graph.start, graph.end))
+        print(sim.bfs_search(graph.start, graph.end))
         print(sim.djikstra(graph.start, graph.end))
     except (ParsingError, SimulationError) as e:
         print(f"[red]{e}[/red]")
