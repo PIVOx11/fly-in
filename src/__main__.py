@@ -17,4 +17,3 @@ if __name__ == "__main__":
     except (ParsingError, SimulationError) as e:
         print(f"[red]{e}[/red]")
         exit(2)
-
