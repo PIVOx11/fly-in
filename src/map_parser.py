@@ -59,8 +59,8 @@ class Parser:
         self.graph.drones = \
             [Drone(x) for x in range(1, self.graph.drone_count + 1)]
         self.graph.start.drones = self.graph.drones[:]
-        self.graph.end.max_dron = self.graph.drone_count + 1
-        self.graph.start.max_dron = self.graph.drone_count + 1
+        self.graph.end.max_drones = self.graph.drone_count + 1
+        self.graph.start.max_drones = self.graph.drone_count + 1
         return self.graph
 
     def drone_nb_parser(self, line: list[str], line_c: int) -> None:
@@ -203,11 +203,7 @@ class Parser:
                 "Unkown Argument Fromat, exmple: \\[color=black] ...")
         zone.color = data.get("color", None)
         zone.max_drones = int(data.get("max_drones", 1))
-        if not data.get("zone"):
-            zone.cost = 1
-        else:
-            zone.cost = allowed_data["zone"][data["zone"]]
-            zone.zone_type = data["zone"]
+        zone.zone_type = data.get("zone", "normal")
 
     def connection_handler(self, line, line_c):
         capacity = 1
@@ -250,7 +246,7 @@ class Parser:
             if int(v) <= 0:
                 raise ParsingError(
                     f"Line {line_c}: drones capacity most be valid integer .")
-            capacity = v
+            capacity = int(v)
         self.connections[zones] = capacity
 
     def create_connections(self):

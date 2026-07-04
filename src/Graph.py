@@ -5,8 +5,19 @@ class Drone:
         self.index = 0
         self.finish = False
 
+    def get_next_zone(self):
+        return self.path[self.index + 1]
+
+    def move_drone(self):
+        if self.index < len(self.path) - 1:
+            self.path[self.index].drones.remove(self)
+            self.index += 1
+            self.path[self.index].drones.append(self)
+        if self.index == len(self.path) - 1:
+            self.finish = True
+
     def __repr__(self):
-        return f"Drone Id: {self.id}"
+        return f"D{self.id}"
 
 
 class Zone:
@@ -20,19 +31,25 @@ class Zone:
             max_drones: int = 1
             ):
         self.name = name
-        self.cost = zone_type
         self.x = x
         self.y = y
         self.connections = connections or {}
         self.color = color
-        self.max_dron = max_drones
+        self.max_drones = max_drones
         self.drones: list[Drone] = []
         self.zone_type = zone_type
+        self.in_coming = 0 #How many dron are coming to the zone at the next turn :)
 
-    def is_full(self) -> bool:
-        if len(self.drones) >= self.max_dron:
+    def kayn_tisa3(self) -> bool:
+        if self.in_coming < self.max_drones:
             return True
         return False
+
+    def get_cost(self):
+        if self.zone_type == "priority" or self.zone_type == "normal":
+            return 1
+        elif self.zone_type == "restricted":
+            return 2
     
     def __repr__(self):
         conect = []
@@ -46,8 +63,8 @@ class Zone:
             f"\nCordonates: {self.x, self.y}"
             f"\nConnectios: {conect}"
             f"\nDrones[{self.drones or 'empty'}]"
-            f"\nCapacity: {self.max_dron}"
-            f"\ncost: {self.cost}\n"
+            f"\nCapacity: {self.max_drones}"
+            f"\ncost: {self.get_cost()}\n"
             f"\nZone_type: {self.zone_type}\n"
         )
 
@@ -65,9 +82,9 @@ class Connection:
         self.to_delever = 0
 
     def can_delever(self):
-        if self.to_delever >= self.capacity:
-            return False
-        return True
+        if self.to_delever < self.capacity:
+            return True
+        return False
 
     def __repr__(self):
         size = self.capacity
@@ -96,6 +113,16 @@ class Graph:
         connection = Connection(first, second, capacity)
         first.connections[second.name] = connection
         second.connections[first.name] = connection
+    
+    def is_over(self) -> bool:
+        """
+            Check if the simulation over by counting drones iside the end hub,
+            if it equal to the drone count it mean it's over,
+            all drones at the end hub
+        """
+        if len(self.end.drones) >= self.drone_count:
+            return True
+        return False
 
     def __repr__(self):
         repr = [
