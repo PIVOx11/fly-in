@@ -3,18 +3,14 @@ class Drone:
         self.id = id
         self.path = []
         self.index = 0
+        self.state = "Ready"
         self.finish = False
 
     def get_next_zone(self):
         return self.path[self.index + 1]
 
-    def move_drone(self):
-        if self.index < len(self.path) - 1:
-            self.path[self.index].drones.remove(self)
-            self.index += 1
-            self.path[self.index].drones.append(self)
-        if self.index == len(self.path) - 1:
-            self.finish = True
+    def move(self):
+        self.index += 1
 
     def __repr__(self):
         return f"D{self.id}"
@@ -79,12 +75,15 @@ class Connection:
         self.first = first
         self.second = second
         self.capacity = capacity
-        self.to_delever = 0
+        self.drones = []
 
     def can_delever(self):
-        if self.to_delever < self.capacity:
-            return True
-        return False
+        return len(self.drones) < self.capacity
+
+    def other(self, zone):
+        if zone == self.first:
+            return self.second
+        return self.first
 
     def __repr__(self):
         size = self.capacity
