@@ -10,10 +10,10 @@ if __name__ == "__main__":
     try:
         parse = Parser(sys.argv[1])
         graph = parse.generate_graph()
-        # print(graph)
+        print(graph)
         # exit()
         sim = Simulation(graph)
-        sim.run()
+        # sim.run()
         # print(sim.djikstra(graph.start, graph.end))
         # print(sim.bfs_search(graph.start, graph.end))
     except (ParsingError, SimulationError) as e:

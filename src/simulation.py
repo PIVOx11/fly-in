@@ -19,27 +19,13 @@ class Simulation:
         turns = 1
         while not self.graph.is_over():
             moves = []
-            print(f"\nTurn {turns}")
             for drone in self.graph.drones:
-                
-                if drone.finish:
-                    continue
-                
-                index = drone.index
-                next_z = drone.get_next_zone()
-                connect = drone.path[index].connections.get(next_z.name)
-                
-                if self.can_move(next_z, connect):
-                    moves.append((drone, next_z, connect))
-                    next_z.in_coming += 1
-                    connect.to_delever += 1
-            
-            for drone, next_z, connect in moves:
-                drone.move_drone()
-                next_z.in_coming -= 1
-                connect.to_delever -= 1
-                print("#",drone, "To", next_z.name,f"Zone capacity: {next_z.max_drones}", f"connection capacity: {Con.capacity}", next_zone.drones)
-            
+                destenation = None # The next zone 
+                connection = None # The connection to the next zone
+                turns = 0 # How many turn i need to cross it :)
+
+
+
             turns += 1
 
 
@@ -47,13 +33,8 @@ class Simulation:
     def can_move(self, destination: Zone,
                  connection: Connection)-> bool:
         if connection.can_delever() and destination.kayn_tisa3():
-                # print(destination.in_coming, connection.to_delever)
                 return True
         return False
-
-
-
-
 
 
     def graph_validate(self) -> list[Zone] | None:
@@ -113,7 +94,6 @@ class Simulation:
             if zone == target:
                 total = 0
                 while zone:
-                    # total += zone.get_cost()
                     path.append(zone)
                     zone = parent[zone]
                 return path[::-1]
@@ -134,6 +114,4 @@ class Simulation:
                     distance[neighbor] = new_dis
                     parent[neighbor] = zone
                     heapq.heappush(queue, (new_dis, neighbor.name))
-        
-        
-        return "Not Founnnd"
+        return None

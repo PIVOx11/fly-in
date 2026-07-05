@@ -5,6 +5,7 @@ class Drone:
         self.index = 0
         self.state = "Ready"
         self.finish = False
+        self.remining = 0
 
     def get_next_zone(self):
         return self.path[self.index + 1]
@@ -34,10 +35,10 @@ class Zone:
         self.max_drones = max_drones
         self.drones: list[Drone] = []
         self.zone_type = zone_type
-        self.in_coming = 0 #How many dron are coming to the zone at the next turn :)
+        self.incoming = 0 #How many dron are coming to the zone at the next turn :)
 
-    def kayn_tisa3(self) -> bool:
-        if self.in_coming < self.max_drones:
+    def can_fitt(self) -> bool:
+        if self.incoming < self.max_drones:
             return True
         return False
 
@@ -119,9 +120,7 @@ class Graph:
             if it equal to the drone count it mean it's over,
             all drones at the end hub
         """
-        if len(self.end.drones) >= self.drone_count:
-            return True
-        return False
+        return len(self.end.drones) >= self.drone_count
 
     def __repr__(self):
         repr = [
