@@ -9,7 +9,7 @@ install_maps:
 	@rm maps.tar.gz
 
 clean:
-	ls
+	rm -rf __pycache__
 
 flake:
 	flake8

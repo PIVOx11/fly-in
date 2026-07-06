@@ -11,10 +11,11 @@ class Drone:
         return self.path[self.index + 1]
 
     def move(self, connection):
-        self.path[self.index].drones.remove(self)
+        if self in self.path[self.index].drones:
+            self.path[self.index].drones.remove(self)
         self.index += 1
         self.path[self.index].drones.append(self)
-        self.satate = "Ready"
+        self.state = "Ready"
         if self in connection.drones:
             connection.drones.remove(self)
         if self.index == len(self.path) - 1:

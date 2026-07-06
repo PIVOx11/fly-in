@@ -18,40 +18,41 @@ class Simulation:
             drone.path = path
         turns = 1
         waiting = []
-        while turns < 5:
-            # print("Turn: ", turns)
+        #  
+        while not self.graph.is_over():
+            print("\nTurn: ", turns)
             moves = []
             for drone in self.graph.drones:
                 if drone.finish:
                     continue
 
                 if drone.state == "crosing":
-                    moves.append(drone)
-                destination = drone.path[drone.index + 1]          # The next zone 
+                    moves.append((drone, drone.path[drone.index + 1], drone.path[drone.index].connections[drone.path[drone.index + 1].name]))
+                    continue
+                destination = drone.path[drone.index + 1]                            # The next zone
                 connection = destination.connections[drone.path[drone.index].name]   # The connection to the next zone
-                turns = 0                   # How many turn i need to cross it :)
                 
                 if self.can_move(destination, connection):
                     moves.append((drone, destination, connection))
                     destination.incoming += 1
+                    drone.path[drone.index].incoming -= 1 # When you decide this drone well move you should remark to other drones can join this zone :)
                     connection.incoming += 1
-                    drone.remaining = 1 if destination.zone_type == "restricted" else 0
-            
+                    drone.remaining = destination.get_cost() - 1
+
             for drone, dest, connection in moves:
                 if drone.remaining:
-                    destination.incoming -= 1
                     connection.drones.append(drone)
                     connection.incoming -= 1
-                    drone.path[drone.index].remove(drone)
-                    drone.ramining -= 1
+                    drone.path[drone.index].drones.remove(drone)
+                    drone.remaining -= 1
                     drone.state = "crosing"
+                    print(drone, "move to connection", connection.drones)
                 else:
-                    destination.incoming -= 1
+                    dest.incoming -= 1
+                    connection.incoming -= 1
                     drone.move(connection)
                     print(drone, "Move to ", dest.name)
             turns += 1
-
-
     
     def can_move(self, destination: Zone,
                  connection: Connection)-> bool:
