@@ -1,0 +1,6 @@
+############################################################################
+1 - work on the restrikted zones : (validate the two turns :)
+
+##############################################################################
+2- Rework on the parsing stage (possible n3awdo kolchi :)
+
