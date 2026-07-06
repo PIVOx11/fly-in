@@ -1,5 +1,5 @@
-from .error_handling import SimulationError
-from .Graph import Graph, Zone, Drone, Connection
+from error_handling import SimulationError
+from Graph import Graph, Zone, Drone, Connection
 from collections import deque
 import heapq
 from collections import defaultdict
@@ -17,22 +17,45 @@ class Simulation:
         for drone in self.graph.drones:
             drone.path = path
         turns = 1
-        while not self.graph.is_over():
+        waiting = []
+        while turns < 5:
+            # print("Turn: ", turns)
             moves = []
             for drone in self.graph.drones:
-                destenation = None # The next zone 
-                connection = None # The connection to the next zone
-                turns = 0 # How many turn i need to cross it :)
+                if drone.finish:
+                    continue
 
-
-
+                if drone.state == "crosing":
+                    moves.append(drone)
+                destination = drone.path[drone.index + 1]          # The next zone 
+                connection = destination.connections[drone.path[drone.index].name]   # The connection to the next zone
+                turns = 0                   # How many turn i need to cross it :)
+                
+                if self.can_move(destination, connection):
+                    moves.append((drone, destination, connection))
+                    destination.incoming += 1
+                    connection.incoming += 1
+                    drone.remaining = 1 if destination.zone_type == "restricted" else 0
+            
+            for drone, dest, connection in moves:
+                if drone.remaining:
+                    destination.incoming -= 1
+                    connection.drones.append(drone)
+                    connection.incoming -= 1
+                    drone.path[drone.index].remove(drone)
+                    drone.ramining -= 1
+                    drone.state = "crosing"
+                else:
+                    destination.incoming -= 1
+                    drone.move(connection)
+                    print(drone, "Move to ", dest.name)
             turns += 1
 
 
     
     def can_move(self, destination: Zone,
                  connection: Connection)-> bool:
-        if connection.can_delever() and destination.kayn_tisa3():
+        if connection.can_delever() and destination.can_fitt():
                 return True
         return False
 

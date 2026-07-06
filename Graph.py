@@ -5,13 +5,20 @@ class Drone:
         self.index = 0
         self.state = "Ready"
         self.finish = False
-        self.remining = 0
+        self.remaining = 0
 
     def get_next_zone(self):
         return self.path[self.index + 1]
 
-    def move(self):
+    def move(self, connection):
+        self.path[self.index].drones.remove(self)
         self.index += 1
+        self.path[self.index].drones.append(self)
+        self.satate = "Ready"
+        if self in connection.drones:
+            connection.drones.remove(self)
+        if self.index == len(self.path) - 1:
+            self.finish = True
 
     def __repr__(self):
         return f"D{self.id}"
@@ -38,9 +45,7 @@ class Zone:
         self.incoming = 0 #How many dron are coming to the zone at the next turn :)
 
     def can_fitt(self) -> bool:
-        if self.incoming < self.max_drones:
-            return True
-        return False
+        return self.incoming + len(self.drones) < self.max_drones
 
     def get_cost(self):
         if self.zone_type == "priority" or self.zone_type == "normal":
@@ -77,9 +82,10 @@ class Connection:
         self.second = second
         self.capacity = capacity
         self.drones = []
+        self.incoming = 0
 
     def can_delever(self):
-        return len(self.drones) < self.capacity
+        return len(self.drones) + self.incoming < self.capacity
 
     def other(self, zone):
         if zone == self.first:

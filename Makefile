@@ -1,15 +1,15 @@
 MAP = maps/easy/01_linear_path.txt
 
 run:
-	uv run -m src ${MAP}
+	uv run main.py ${MAP}
 
 install_maps:
 	wget https://cdn.intra.42.fr/document/document/53960/maps.tar.gz
 	@tar -xf maps.tar.gz
-	@rm -rf maps.tar.gz
+	@rm maps.tar.gz
 
 clean:
-	rm -rf src/__pycache__
+	ls
 
 flake:
-	flake8 __main__.py src/ 
+	flake8

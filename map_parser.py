@@ -1,5 +1,5 @@
-from .error_handling import ParsingError
-from .Graph import Graph, Zone, Drone
+from error_handling import ParsingError
+from Graph import Graph, Zone, Drone
 
 
 class Parser:
