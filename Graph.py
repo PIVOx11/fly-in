@@ -53,7 +53,10 @@ class Zone:
             return 1
         elif self.zone_type == "restricted":
             return 2
-    
+
+    def get_connection(self, zone):
+        return self.connections.get(zone)
+
     def __repr__(self):
         conect = []
         for c in self.connections.values():
@@ -84,6 +87,7 @@ class Connection:
         self.capacity = capacity
         self.drones = []
         self.incoming = 0
+        self.active = True
 
     def can_delever(self):
         return len(self.drones) + self.incoming < self.capacity

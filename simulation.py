@@ -9,58 +9,6 @@ class Simulation:
         self.graph = graph
         self.path = []
 
-    def run(self):
-        """
-            Simulate the Drones movments in one path :) .
-        """
-        path = self.djikstra(self.graph.start, self.graph.end)
-        for drone in self.graph.drones:
-            drone.path = path
-        turns = 1
-        waiting = []
-        #  
-        while not self.graph.is_over():
-            print("\nTurn: ", turns)
-            moves = []
-            for drone in self.graph.drones:
-                if drone.finish:
-                    continue
-
-                if drone.state == "crosing":
-                    moves.append((drone, drone.path[drone.index + 1], drone.path[drone.index].connections[drone.path[drone.index + 1].name]))
-                    continue
-                destination = drone.path[drone.index + 1]                            # The next zone
-                connection = destination.connections[drone.path[drone.index].name]   # The connection to the next zone
-                
-                if self.can_move(destination, connection):
-                    moves.append((drone, destination, connection))
-                    destination.incoming += 1
-                    drone.path[drone.index].incoming -= 1 # When you decide this drone well move you should remark to other drones can join this zone :)
-                    connection.incoming += 1
-                    drone.remaining = destination.get_cost() - 1
-
-            for drone, dest, connection in moves:
-                if drone.remaining:
-                    connection.drones.append(drone)
-                    connection.incoming -= 1
-                    drone.path[drone.index].drones.remove(drone)
-                    drone.remaining -= 1
-                    drone.state = "crosing"
-                    print(drone, "move to connection", connection.drones)
-                else:
-                    dest.incoming -= 1
-                    connection.incoming -= 1
-                    drone.move(connection)
-                    print(drone, "Move to ", dest.name)
-            turns += 1
-    
-    def can_move(self, destination: Zone,
-                 connection: Connection)-> bool:
-        if connection.can_delever() and destination.can_fitt():
-                return True
-        return False
-
-
     def graph_validate(self) -> list[Zone] | None:
         path = self.bfs_search(self.graph.start, self.graph.end)
         if not path:
@@ -118,14 +66,14 @@ class Simulation:
             if zone == target:
                 total = 0
                 while zone:
+                    total += zone.get_cost()
                     path.append(zone)
                     zone = parent[zone]
-                return path[::-1]
+                return (path[::-1], total)
 
-            for neighbor in zone.connections.values():
-                neighbor = neighbor.other(zone)
-
-                if neighbor.zone_type == "blocked":
+            for connection in zone.connections.values():
+                neighbor = connection.other(zone)
+                if neighbor.zone_type == "blocked" or not connection.active:
                     continue
 
                 if neighbor.zone_type == "priority":
@@ -139,3 +87,14 @@ class Simulation:
                     parent[neighbor] = zone
                     heapq.heappush(queue, (new_dis, neighbor.name))
         return None
+
+    def pivox_algo(self, path_count: int) -> list:
+        valid_paths: list[tuple[int, list[Zone]]] = []
+        main_path = self.djikstra(self.graph.start, self.graph.end)
+        valid_paths.append(main_path)
+        print(f"{[zone.name for zone in main_path[0]]}", main_path[1])
+        index = 0
+
+        for _ in range(path_count):
+            pass
+        return valid_paths
