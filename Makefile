@@ -1,4 +1,4 @@
-MAP = maps/easy/01_linear_path.txt
+MAP = maps/pivox/map1.txt
 
 run:
 	uv run main.py ${MAP}

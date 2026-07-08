@@ -42,11 +42,11 @@ class Simulation:
                     queue.append(n)
         return "Not Foud"
 
-    def djikstra(self, start: Zone, target: Zone) -> list[Zone] | None:
+    def djikstra(self, start: Zone, target: Zone, path=[]) -> list[Zone] | None:
         """
             Find The most cheapest Path from stariting slected Zone to a target Zone :)
         """
-        visited = set()
+        visited = {zone for zone in path}
         parent = {start: None}
         distance = defaultdict(lambda: float("inf"))
         distance[start] = 0
@@ -69,7 +69,7 @@ class Simulation:
                     total += zone.get_cost()
                     path.append(zone)
                     zone = parent[zone]
-                return (path[::-1], total)
+                return path[::-1]
 
             for connection in zone.connections.values():
                 neighbor = connection.other(zone)
@@ -90,11 +90,45 @@ class Simulation:
 
     def pivox_algo(self, path_count: int) -> list:
         valid_paths: list[tuple[int, list[Zone]]] = []
-        main_path = self.djikstra(self.graph.start, self.graph.end)
-        valid_paths.append(main_path)
-        print(f"{[zone.name for zone in main_path[0]]}", main_path[1])
-        index = 0
 
-        for _ in range(path_count):
-            pass
+        path = self.djikstra(self.graph.start, self.graph.end)
+        valid_paths.append(path)
+        candidates = []
+        
+        while len(valid_paths) < path_count:
+            path = valid_paths[-1]
+
+            for i in range(len(path) - 1):
+                root = path[:i + 1]
+                connection = root[-1].connections[path[i + 1].name]
+                connection.active = False
+                cand = self.djikstra(root[-1], self.graph.end, root[:-1])
+                connection.active = True
+
+                if not cand:
+                    continue
+
+                cand = root[:-1] + cand
+                candidates.append(self.get_path_cost(cand))
+            
+            while candidates:
+                best = min(candidates, key=lambda p: p[0])
+                candidates.remove(best)
+
+                if best[1] in valid_paths:
+                    continue
+
+                valid_paths.append(best[1])
+                break
+            else:
+                break
+
         return valid_paths
+
+    def get_path_cost(self, candidate):
+        cost = 0
+
+        for zone in candidate:
+            cost += zone.get_cost()
+
+        return (cost, candidate)

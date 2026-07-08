@@ -11,7 +11,8 @@ if __name__ == "__main__":
         parse = Parser(sys.argv[1])
         graph = parse.generate_graph()
         sim = Simulation(graph) 
-        sim.pivox_algo(3)
+        for path in sim.pivox_algo(6):
+            print(f"{[zone.name for zone in path]}")
     except (ParsingError, SimulationError) as e:
         print(f"[red]{e}[/red]")
         exit(2)
