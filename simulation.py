@@ -1,4 +1,4 @@
-from error_handling import SimulationError
+from error_handling import MapError
 from Graph import Graph, Zone, Drone, Connection
 from collections import deque
 import heapq
@@ -7,12 +7,12 @@ from collections import defaultdict
 class Simulation:
     def __init__(self, graph: Graph):
         self.graph = graph
-        self.path = []
+        self.paths = []
 
     def graph_validate(self) -> list[Zone] | None:
         path = self.bfs_search(self.graph.start, self.graph.end)
         if not path:
-            raise SimulationError(
+            raise MapError(
                 "There is no path between start and end point .")
         print(path)
 
@@ -57,22 +57,26 @@ class Simulation:
 
         while queue:
             cost, zone = heapq.heappop(queue)
-
             zone = self.graph.zones[zone]
+
             if zone in visited:
                 continue
+
             visited.add(zone)
 
             if zone == target:
                 total = 0
+
                 while zone:
                     total += zone.get_cost()
                     path.append(zone)
                     zone = parent[zone]
+
                 return path[::-1]
 
             for connection in zone.connections.values():
                 neighbor = connection.other(zone)
+
                 if neighbor.zone_type == "blocked" or not connection.active:
                     continue
 
@@ -86,6 +90,7 @@ class Simulation:
                     distance[neighbor] = new_dis
                     parent[neighbor] = zone
                     heapq.heappush(queue, (new_dis, neighbor.name))
+
         return None
 
     def pivox_algo(self, path_count: int) -> list:
@@ -94,23 +99,35 @@ class Simulation:
         path = self.djikstra(self.graph.start, self.graph.end)
         valid_paths.append(path)
         candidates = []
-        
+        c_to_remove = set()
+
         while len(valid_paths) < path_count:
-            path = valid_paths[-1]
 
             for i in range(len(path) - 1):
                 root = path[:i + 1]
                 connection = root[-1].connections[path[i + 1].name]
-                connection.active = False
+                c_to_remove.add(connection)
+
+                for old_path in valid_paths:
+
+                    if len(old_path) <= i:
+                        continue
+
+                    path_root = old_path[:i + 1]
+                    if root == path_root:
+                        c_to_remove.add(path_root[-1].connections[old_path[i + 1].name])
+
+                self.connections_handler(c_to_remove, True)
                 cand = self.djikstra(root[-1], self.graph.end, root[:-1])
-                connection.active = True
+                self.connections_handler(c_to_remove, False)
+                c_to_remove.clear()
 
                 if not cand:
                     continue
 
                 cand = root[:-1] + cand
-                candidates.append(self.get_path_cost(cand))
-            
+                candidates.append(self.get_path_cost(cand)) #replace the get cost method make djikstra do the work insted :)
+
             while candidates:
                 best = min(candidates, key=lambda p: p[0])
                 candidates.remove(best)
@@ -123,12 +140,21 @@ class Simulation:
             else:
                 break
 
-        return valid_paths
+        return [self.get_path_cost(path)[0] for path in valid_paths]
 
-    def get_path_cost(self, candidate):
+    def get_path_cost(self, path: list[Zone]) -> tuple[int, list[Zone]]:
         cost = 0
 
-        for zone in candidate:
+        for zone in path:
             cost += zone.get_cost()
 
-        return (cost, candidate)
+        return (cost, path)
+
+    def connections_handler(self, connections: Connection | list[Connection], active: bool) -> None:
+        if active:
+            for c in connections:
+                c.active = False
+            return
+        
+        for c in connections:
+            c.active = True

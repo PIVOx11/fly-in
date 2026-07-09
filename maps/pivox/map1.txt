@@ -7,6 +7,7 @@ hub: j3 -1 1 [color=yellow max_drones=2]
 end_hub: goal 4 0 [color=green]
 
 connection: start-j1
+connection: start-j2
 connection: j1-j2
 connection: j1-j3
 connection: j1-goal

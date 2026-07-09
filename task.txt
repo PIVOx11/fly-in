@@ -1,6 +1,28 @@
 ############################################################################
-1 - work on the restrikted zones : (validate the two turns :)
+1 - work on the restrikted zones : (validate the two turns :)  ==> Done 
 
 ##############################################################################
-2- Rework on the parsing stage (possible n3awdo kolchi :)
+
+2- Complete the yen algo :)
+3- Full understind of how the multipath work :)
+4- Start With The scheduler Part :)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##############################################################################
+Rework on the parsing stage (possible n3awdo kolchi :)
 

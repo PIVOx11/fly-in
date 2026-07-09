@@ -4,3 +4,7 @@ class ParsingError(Exception):
 
 class SimulationError(Exception):
     pass
+
+
+class MapError(Exception):
+    pass
