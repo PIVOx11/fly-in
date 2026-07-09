@@ -60,11 +60,14 @@ class Simulation:
     def drone_path(self):
         for path in self.pivox_algo(self.graph.drone_count):
             self.paths.append(Path(path[0], path[1]))
+        for drone in self.graph.drones:
+            best_path = min(self.paths, key=lambda x: x.cost + len(x.assign))
+            best_path.assign.append(drone)
         return self.paths
 
 
     def run(self):
-        self.drone_path() #To Do :)
+        self.drone_path()
 
     def djikstra(self, start: Zone, target: Zone, path=[]) -> list[Zone] | None:
 
@@ -155,7 +158,6 @@ class Simulation:
                     continue
 
                 cand = root[:-1] + cand
-                #replace the get cost method make djikstra do the work insted :)
                 candidates.append(self.get_path_cost(cand)) 
 
             while candidates:
