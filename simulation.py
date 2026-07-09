@@ -4,6 +4,22 @@ from collections import deque
 import heapq
 from collections import defaultdict
 
+
+class Path:
+
+    def __init__(self, cost: int, path: list[Zone]):
+        self.assign: list[Drone] = []
+        self.cost = cost
+        self.path = path
+    
+    def __repr__(self):
+        return (
+                f"Path: {[zone.name for zone in self.path]}\n"
+                f"Cost: {self.cost}\n"
+                f"asigned to: {self.assign if self.assign else 'NO DRONE YET'}\n\n"
+            )
+
+
 class Simulation:
     def __init__(self, graph: Graph):
         self.graph = graph
@@ -14,7 +30,6 @@ class Simulation:
         if not path:
             raise MapError(
                 "There is no path between start and end point .")
-        print(path)
 
     def bfs_search(self, start: Zone, target: Zone):
         queue = deque([start])
@@ -42,10 +57,21 @@ class Simulation:
                     queue.append(n)
         return "Not Foud"
 
+    def drone_path(self):
+        for path in self.pivox_algo(self.graph.drone_count):
+            self.paths.append(Path(path[0], path[1]))
+        return self.paths
+
+
+    def run(self):
+        self.drone_path() #To Do :)
+
     def djikstra(self, start: Zone, target: Zone, path=[]) -> list[Zone] | None:
+
         """
             Find The most cheapest Path from stariting slected Zone to a target Zone :)
         """
+
         visited = {zone for zone in path}
         parent = {start: None}
         distance = defaultdict(lambda: float("inf"))
@@ -93,22 +119,25 @@ class Simulation:
 
         return None
 
-    def pivox_algo(self, path_count: int) -> list:
+    def pivox_algo(self, path_count: int):
         valid_paths: list[tuple[int, list[Zone]]] = []
 
         path = self.djikstra(self.graph.start, self.graph.end)
-        valid_paths.append(path)
+        valid_paths.append(self.get_path_cost(path))
         candidates = []
         c_to_remove = set()
 
         while len(valid_paths) < path_count:
-
+            path = valid_paths[-1] # Back to it later :)
+            path = path[1] # Back to it later :)
             for i in range(len(path) - 1):
+
                 root = path[:i + 1]
                 connection = root[-1].connections[path[i + 1].name]
                 c_to_remove.add(connection)
 
                 for old_path in valid_paths:
+                    old_path = old_path[1]
 
                     if len(old_path) <= i:
                         continue
@@ -126,21 +155,22 @@ class Simulation:
                     continue
 
                 cand = root[:-1] + cand
-                candidates.append(self.get_path_cost(cand)) #replace the get cost method make djikstra do the work insted :)
+                #replace the get cost method make djikstra do the work insted :)
+                candidates.append(self.get_path_cost(cand)) 
 
             while candidates:
                 best = min(candidates, key=lambda p: p[0])
                 candidates.remove(best)
 
-                if best[1] in valid_paths:
+                if best in valid_paths:
                     continue
 
-                valid_paths.append(best[1])
+                valid_paths.append(best)
                 break
             else:
                 break
 
-        return [self.get_path_cost(path)[0] for path in valid_paths]
+        return valid_paths
 
     def get_path_cost(self, path: list[Zone]) -> tuple[int, list[Zone]]:
         cost = 0
@@ -148,13 +178,13 @@ class Simulation:
         for zone in path:
             cost += zone.get_cost()
 
-        return (cost, path)
+        return (cost - 1, path)
 
     def connections_handler(self, connections: Connection | list[Connection], active: bool) -> None:
         if active:
             for c in connections:
                 c.active = False
             return
-        
+
         for c in connections:
             c.active = True
