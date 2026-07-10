@@ -11,7 +11,7 @@ class Path:
         self.assign: list[Drone] = []
         self.cost = cost
         self.path = path
-    
+
     def __repr__(self):
         return (
                 f"Path: {[zone.name for zone in self.path]}\n"
@@ -63,14 +63,50 @@ class Simulation:
         for drone in self.graph.drones:
             best_path = min(self.paths, key=lambda x: x.cost + len(x.assign))
             best_path.assign.append(drone)
+            drone.path = best_path.path
         return self.paths
-
 
     def run(self):
         self.drone_path()
+        con_to_free: dict[Connection, int] = defaultdict(int)
+        sim_data: dict[int, list[dict[Zone, list[Drone]]]] = {} 
+        # Example of sim_data = 3 : ["start": [D3, D4]]
+        turns: int = 0
+        moves = []
+
+        while not self.graph.is_over():
+            # check move ability
+            print(f"### Turns {turns}: ###")
+            for drone in self.graph.drones:
+
+                if drone.finish:
+                    continue
+
+                drone.update_data() # Could remove :)
+
+                if drone.can_move():
+                    moves.append(drone)
+                    drone.prev_zone.drones.remove(drone)
+                    drone.next_zone.incoming += 1
+                    drone.connect.incoming += 1
+                    con_to_free[drone.connect] += 1
+
+            # Start Execute the Moves That we decide :)
+
+            sim_data[turns] = []
+
+            for drone in moves:
+                
+                print(f"{drone} {drone.next_zone.name}")
+
+            turns += 1
+
+
+
+
+
 
     def djikstra(self, start: Zone, target: Zone, path=[]) -> list[Zone] | None:
-
         """
             Find The most cheapest Path from stariting slected Zone to a target Zone :)
         """

@@ -3,21 +3,15 @@
 
 ##############################################################################
 
-2- Complete the yen algo :)
-3- Full understind of how the multipath work :)
+2- Complete the yen algo :) ==> Done
+3- Full understind of how the multipath work :) ==> Done
+
+##############################################################################
+
+
+
+
 4- Start With The scheduler Part :)
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

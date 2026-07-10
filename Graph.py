@@ -1,31 +1,58 @@
+
+
 class Drone:
+
     def __init__(self, id: int):
         self.id = id
         self.path = []
         self.index = 0
         self.state = "Ready"
         self.finish = False
-        self.remaining = 0
+        self.next_zone: Zone = None
+        self.prev_zone: Zone = None
+        self.connect = Connection
 
-    def get_next_zone(self):
-        return self.path[self.index + 1]
+    def update_data(self) -> None:
+        """
+            update the drone data (next, previeus zones and connections between them)
+        """
 
-    def move(self, connection):
-        if self in self.path[self.index].drones:
-            self.path[self.index].drones.remove(self)
+        self.next_zone = self.path[self.index + 1]
+        self.prev_zone = self.path[self.index]
+        self.connect = self.prev_zone.connections[self.next_zone.name]
+        return
+
+    # Get Next zone method in the EOF :)
+
+    def can_move(self) -> bool:
+        """
+            check if drone can move base on the Zone and connection capacity :)
+        """
+        if self.next_zone.can_fitt() and self.connect.can_delever():
+            return True
+        return False
+
+    def Execute_move(self, connection):
+        """
+            Execute The drone Move
+        """
+
+        self.next_zone.incoming -= 1
+        self.next_zone.drones.append(self)
+        self.connect.incoming -= 1
         self.index += 1
-        self.path[self.index].drones.append(self)
-        self.state = "Ready"
-        if self in connection.drones:
-            connection.drones.remove(self)
+
         if self.index == len(self.path) - 1:
             self.finish = True
+
+        return
 
     def __repr__(self):
         return f"D{self.id}"
 
 
 class Zone:
+
     def __init__(
             self,
             name: str,
@@ -43,7 +70,7 @@ class Zone:
         self.max_drones = max_drones
         self.drones: list[Drone] = []
         self.zone_type = zone_type
-        self.incoming = 0 #How many dron are coming to the zone at the next turn :)
+        self.incoming = 0 # How many dron are coming to the zone at the next turn :)
 
     def can_fitt(self) -> bool:
         return self.incoming + len(self.drones) < self.max_drones
@@ -143,3 +170,16 @@ class Graph:
         for z in self.zones.values():
             repr.append(str(z))
         return "\n".join(repr)
+
+
+
+    # i think it got Elgin and Ellis mode loool :)
+
+    # def get_next_zone(self):
+    #     """
+    #         Get the next zone obj or none if it finish :)
+    #     """
+
+    #     if self.index + 1 < len(self.path) - 1:
+    #         return self.path[self.index + 1]
+    #     return None

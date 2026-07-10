@@ -1,4 +1,4 @@
-MAP = maps/hard/03_ultimate_challenge.txt
+MAP = maps/pivox/map1.txt
 
 run:
 	uv run main.py ${MAP}
