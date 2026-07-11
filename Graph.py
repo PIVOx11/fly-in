@@ -1,28 +1,62 @@
-
-
 class Drone:
 
     def __init__(self, id: int):
         self.id = id
         self.path = []
         self.index = 0
-        self.state = "Ready"
+        self.to_arrive = 0
         self.finish = False
         self.next_zone: Zone = None
         self.prev_zone: Zone = None
         self.connect = Connection
 
-    def update_data(self) -> None:
-        """
-            update the drone data (next, previeus zones and connections between them)
-        """
+    def update_data(self, path = None):
+
+        if path:
+            self.path = path
+
+        self.curent_zone = self.path[self.index]
+
+        if self.index >= len(self.path) - 1:
+            return
 
         self.next_zone = self.path[self.index + 1]
-        self.prev_zone = self.path[self.index]
-        self.connect = self.prev_zone.connections[self.next_zone.name]
-        return
+        self.connect = self.curent_zone.connections[self.next_zone.name]
 
-    # Get Next zone method in the EOF :)
+    def Execute_restricted(self):
+        self.to_arrive -= 1
+
+        if self.to_arrive == 1:
+            self.connect.drones.append(self)
+            self.connect.incoming -= 1
+            return f"{self.curent_zone.name}-{self.next_zone.name}"
+        else:
+            self.connect.drones.remove(self)
+            self.next_zone.incoming -= 1
+            self.next_zone.drones.append(self)
+            self.index += 1
+            self.update_data()
+
+            if self.index >= len(self.path) - 1:
+                self.finish = True
+
+        return self.curent_zone.name
+
+    def Execute_move(self):
+        """
+            Execute The drone Move
+        """
+
+        self.next_zone.incoming -= 1
+        self.connect.incoming -= 1
+        self.index += 1
+        self.next_zone.drones.append(self)
+
+        self.update_data()
+        if self.index >= len(self.path) - 1:
+            self.finish = True
+
+        return self.curent_zone.name
 
     def can_move(self) -> bool:
         """
@@ -32,20 +66,6 @@ class Drone:
             return True
         return False
 
-    def Execute_move(self, connection):
-        """
-            Execute The drone Move
-        """
-
-        self.next_zone.incoming -= 1
-        self.next_zone.drones.append(self)
-        self.connect.incoming -= 1
-        self.index += 1
-
-        if self.index == len(self.path) - 1:
-            self.finish = True
-
-        return
 
     def __repr__(self):
         return f"D{self.id}"
@@ -170,16 +190,3 @@ class Graph:
         for z in self.zones.values():
             repr.append(str(z))
         return "\n".join(repr)
-
-
-
-    # i think it got Elgin and Ellis mode loool :)
-
-    # def get_next_zone(self):
-    #     """
-    #         Get the next zone obj or none if it finish :)
-    #     """
-
-    #     if self.index + 1 < len(self.path) - 1:
-    #         return self.path[self.index + 1]
-    #     return None

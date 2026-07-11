@@ -55,55 +55,62 @@ class Simulation:
                     visited.add(n)
                     parent[n] = zone
                     queue.append(n)
-        return "Not Foud"
+        return None
 
     def drone_path(self):
         for path in self.pivox_algo(self.graph.drone_count):
             self.paths.append(Path(path[0], path[1]))
+        
+        while len(self.paths) > 4:
+            self.paths.pop()
+
         for drone in self.graph.drones:
             best_path = min(self.paths, key=lambda x: x.cost + len(x.assign))
             best_path.assign.append(drone)
-            drone.path = best_path.path
+            drone.update_data(best_path.path)
+        
         return self.paths
 
     def run(self):
         self.drone_path()
-        con_to_free: dict[Connection, int] = defaultdict(int)
         sim_data: dict[int, list[dict[Zone, list[Drone]]]] = {} 
-        # Example of sim_data = 3 : ["start": [D3, D4]]
         turns: int = 0
         moves = []
+        print("\n")
 
         while not self.graph.is_over():
-            # check move ability
-            print(f"### Turns {turns}: ###")
+            sim_data[turns + 1] = []
+            
             for drone in self.graph.drones:
 
-                if drone.finish:
+                if drone.finish or drone in moves:
                     continue
-
-                drone.update_data() # Could remove :)
 
                 if drone.can_move():
                     moves.append(drone)
-                    drone.prev_zone.drones.remove(drone)
+                    drone.curent_zone.drones.remove(drone)
                     drone.next_zone.incoming += 1
                     drone.connect.incoming += 1
-                    con_to_free[drone.connect] += 1
+                    if drone.next_zone.zone_type == "restricted":
+                        drone.to_arrive = 2
 
-            # Start Execute the Moves That we decide :)
+            for drone in moves[:]:
 
-            sim_data[turns] = []
+                if drone.next_zone.zone_type == "restricted":
+                    destination = drone.Execute_restricted()
+                else:
+                    destination = drone.Execute_move()
 
-            for drone in moves:
-                
-                print(f"{drone} {drone.next_zone.name}")
+                print(f"{drone}-{destination}", end=" ")
+                if drone.to_arrive == 0:
+                    moves.remove(drone)
+                sim_data[turns + 1].append({drone: destination}) 
 
+            print("\n")
             turns += 1
 
-
-
-
+        print(f"Simulation are over withen: {turns} turn")
+        return sim_data
 
 
     def djikstra(self, start: Zone, target: Zone, path=[]) -> list[Zone] | None:
@@ -146,7 +153,7 @@ class Simulation:
                     continue
 
                 if neighbor.zone_type == "priority":
-                    cost = 0.9
+                    cost = 0.7
                 else:
                     cost = neighbor.get_cost()
                 new_dis = distance[zone] + cost

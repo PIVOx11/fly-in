@@ -1,22 +1,5 @@
-############################################################################
-1 - work on the restrikted zones : (validate the two turns :)  ==> Done 
+1 - Add the restricted case to the scheduler ==> Done
 
-##############################################################################
+3 - build the data structer of simulation
 
-2- Complete the yen algo :) ==> Done
-3- Full understind of how the multipath work :) ==> Done
-
-##############################################################################
-
-
-
-
-4- Start With The scheduler Part :)
-
-
-
-
-
-##############################################################################
-Rework on the parsing stage (possible n3awdo kolchi :)
-
+4 - start with visualasation part

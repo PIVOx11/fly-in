@@ -11,7 +11,7 @@ if __name__ == "__main__":
         parse = Parser(sys.argv[1])
         graph = parse.generate_graph()
         sim = Simulation(graph)
-        print(sim.run())
+        print("\n\n", sim.run())
     except (ParsingError, SimulationError) as e:
         print(f"[red]{e}[/red]")
         exit(2)
