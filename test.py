@@ -1,9 +1,16 @@
-import heapq
+import arcade
 
-queue = []
 
-heapq.heappush(queue, (100, 1))
-heapq.heappush(queue, (10, 1))
-heapq.heappush(queue, (0, 1))
+class Fly(arcade.Window):
+    def __init__(self):
+        super().__init__(resizable=True, title="PIVOx")
+        self.background_color = arcade.color.AMAZON
 
-print(queue)
+    def on_draw(self):
+        self.clear()
+        arcade.draw_circle_outline(center_x=100, center_y= 100 ,radius=50, color=(255,0,0))
+
+
+window = Fly()
+
+arcade.run()
