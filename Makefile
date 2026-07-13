@@ -1,4 +1,4 @@
-MAP = maps/hard/03_ultimate_challenge.txt
+MAP = maps/easy/01_linear_path.txt
 run:
 	uv run main.py ${MAP}
 

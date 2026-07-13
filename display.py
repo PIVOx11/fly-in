@@ -7,7 +7,7 @@ class Display(arcade.Window):
 
         super().__init__(resizable=True, title="Fly-in | by: blidriss")
 
-        self.background_color = arcade.color.AMAZON
+        self.background_color = arcade.color.BLACK
         self.graph = graph
         self.sim_data = sim_data
         self.auto_scale_x = 0
@@ -16,16 +16,23 @@ class Display(arcade.Window):
         self.max_x = max(zone.x for zone in graph.zones.values())
         self.min_y = min(zone.y for zone in graph.zones.values())
         self.max_y = max(zone.y for zone in graph.zones.values())
-        self.margin = 160
+        self.margin = 120
 
     def get_cordonate(self, x: int, y: int):
+        MAX_SCALE = 180
+
+        
+
         usable_width = self.width - self.margin
         usable_height = self.height - self.margin
 
-        dx = max(self.max_x - self.min_x, 1)
-        dy = max(self.max_y - self.min_y, 1)
+        dx = self.max_x - self.min_x
+        dy = self.max_y - self.min_y
 
-        scale = min(usable_width / dx, usable_height / dy)
+        scale_x = usable_width / max(dx, 1)
+        scale_y = usable_height / max(dy, 1)
+
+        scale = min(scale_x, scale_y, MAX_SCALE)
 
         start_x = (self.width - dx * scale) / 2
         start_y = (self.height - dy * scale) / 2
@@ -33,18 +40,27 @@ class Display(arcade.Window):
         screen_x = start_x + (x - self.min_x) * scale
         screen_y = start_y + (y - self.min_y) * scale
 
-        return screen_x, screen_y
+        return screen_x, screen_y, scale
 
     def on_draw(self):
         self.clear()
+        draw_conect = set()
+        for c in self.graph.zones.values():
+            for con in c.connections.values():
+                if con in draw_conect:
+                    continue
+                draw_conect.add(con)
+                f_x, f_y, scale = self.get_cordonate(con.first.x, con.first.y)
+                s_x, s_y, scale = self.get_cordonate(con.second.x, con.second.y)
+                scale = 0
+                arcade.draw.draw_line(f_x, f_y, s_x, s_y, arcade.color.WHITE)
 
-        self.auto_scale_x = (self.width) / max(self.max_x - self.min_x, 1)
-        self.auto_scale_y = (self.height) / max(self.max_y - self.min_y, 1)
+
 
         for zone in self.graph.zones.values():
             z_x = zone.x
             z_y = zone.y
 
-            x, y = self.get_cordonate(z_x, z_y)
-            arcade.draw_circle_filled(x, y, radius=30, color=(255, 0, 0))
+            x, y, scale = self.get_cordonate(z_x, z_y)
+            arcade.draw_circle_filled(x, y, radius=scale * 0.2, color=(255, 0, 0))
 
