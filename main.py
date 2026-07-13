@@ -2,7 +2,7 @@ import sys
 from map_parser import Parser
 from error_handling import ParsingError, SimulationError
 from simulation import Simulation
-from arcade_visualizer import DroneVisualizerApp
+from display import Display
  
  
 if __name__ == "__main__":
@@ -14,10 +14,8 @@ if __name__ == "__main__":
  
         sim = Simulation(graph)
         sim_data = sim.run()
- 
-        # Launch the Arcade visualizer with the finished graph + sim_data
-        app = DroneVisualizerApp(graph, sim_data)
-        app.run()
+        display = Display(graph, sim_data)
+        display.run()
  
     except (ParsingError, SimulationError) as e:
         print(f"[red]{e}[/red]")
