@@ -19,10 +19,7 @@ class Display(arcade.Window):
         self.margin = 120
 
     def get_cordonate(self, x: int, y: int):
-        MAX_SCALE = 180
-
-        
-
+        MAX_SCALE = 175
         usable_width = self.width - self.margin
         usable_height = self.height - self.margin
 
@@ -35,10 +32,10 @@ class Display(arcade.Window):
         scale = min(scale_x, scale_y, MAX_SCALE)
 
         start_x = (self.width - dx * scale) / 2
-        start_y = (self.height - dy * scale) / 2
+        start_y = (self.height - dy * scale) / 2 
 
-        screen_x = start_x + (x - self.min_x) * scale
-        screen_y = start_y + (y - self.min_y) * scale
+        screen_x = start_x + x * scale
+        screen_y = start_y + y * scale + 200
 
         return screen_x, screen_y, scale
 
@@ -55,12 +52,13 @@ class Display(arcade.Window):
                 scale = 0
                 arcade.draw.draw_line(f_x, f_y, s_x, s_y, arcade.color.WHITE)
 
-
-
         for zone in self.graph.zones.values():
             z_x = zone.x
             z_y = zone.y
 
             x, y, scale = self.get_cordonate(z_x, z_y)
-            arcade.draw_circle_filled(x, y, radius=scale * 0.2, color=(255, 0, 0))
-
+            arcade.draw_circle_filled(x, y, radius=scale * 0.30, color=(255, 0, 0))
+            name_counter = 30
+            for name in zone.name.split("_", 1)[::-1]:
+                arcade.draw_text(name, x - 5, y + name_counter, anchor_x="center", font_size=8, bold=True, font_name="calibri")
+                name_counter += 10 
