@@ -1,5 +1,0 @@
-1 - Add the restricted case to the scheduler ==> Done
-
-3 - build the data structer of simulation
-
-4 - start with visualasation part

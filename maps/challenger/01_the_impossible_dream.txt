@@ -27,12 +27,12 @@ hub: maze_trap_b2 3 -1 [color=purple]
 hub: maze_trap_b3 4 -1 [color=purple]
 hub: maze_dead_b 5 -1 [color=black]
 
-hub: maze_loop1 2 2 [zone=restricted color=brown]
-hub: maze_loop2 3 2 [zone=restricted color=brown]
-hub: maze_loop3 4 2 [zone=restricted color=brown]
-hub: maze_loop4 5 2 [zone=restricted color=brown]
-hub: maze_loop5 6 2 [zone=restricted color=brown]
-hub: maze_loop6 6 1 [zone=restricted color=brown]
+hub: maze_loop1 2 2 [zone=normal color=brown]
+hub: maze_loop2 3 2 [zone=normal color=brown]
+hub: maze_loop3 4 2 [zone=normal color=brown]
+hub: maze_loop4 5 2 [zone=normal color=brown]
+hub: maze_loop5 6 2 [zone=normal color=brown]
+hub: maze_loop6 6 1 [zone=normal color=brown]
 
 # === LAYER 2: The Capacity Nightmare ===
 hub: micro_gate1 7 0 [color=orange max_drones=1]
@@ -40,12 +40,12 @@ hub: micro_gate2 8 0 [color=orange max_drones=1]
 hub: micro_gate3 9 0 [color=orange max_drones=1]
 
 # Overflow areas with terrible costs
-hub: overflow_hell1 7 1 [zone=restricted color=maroon max_drones=2]
-hub: overflow_hell2 8 1 [zone=restricted color=maroon max_drones=2]
-hub: overflow_hell3 9 1 [zone=restricted color=maroon max_drones=2]
-hub: overflow_hell4 7 -1 [zone=restricted color=maroon max_drones=2]
-hub: overflow_hell5 8 -1 [zone=restricted color=maroon max_drones=2]
-hub: overflow_hell6 9 -1 [zone=restricted color=maroon max_drones=2]
+hub: overflow_hell1 7 1 [zone=normal color=maroon max_drones=2]
+hub: overflow_hell2 8 1 [zone=normal color=maroon max_drones=2]
+hub: overflow_hell3 9 1 [zone=normal color=maroon max_drones=2]
+hub: overflow_hell4 7 -1 [zone=normal color=maroon max_drones=2]
+hub: overflow_hell5 8 -1 [zone=normal color=maroon max_drones=2]
+hub: overflow_hell6 9 -1 [zone=normal color=maroon max_drones=2]
 
 # === LAYER 3: The False Hope Section ===
 # Priority zones that lead to more traps
@@ -63,18 +63,18 @@ hub: priority_trap4 11 -1 [zone=priority color=gold]
 hub: priority_dead2 12 -1 [color=black]
 
 # === LAYER 4: The Convergence Hell ===
-# Multiple restricted paths that must merge
-hub: conv_restricted1 13 2 [zone=restricted color=darkred max_drones=1]
-hub: conv_restricted2 14 2 [zone=restricted color=darkred max_drones=1]
-hub: conv_restricted3 15 2 [zone=restricted color=darkred max_drones=1]
+# Multiple normal paths that must merge
+hub: conv_normal1 13 2 [zone=normal color=darkred max_drones=1]
+hub: conv_normal2 14 2 [zone=normal color=darkred max_drones=1]
+hub: conv_normal3 15 2 [zone=normal color=darkred max_drones=1]
 
-hub: conv_restricted4 13 0 [zone=restricted color=darkred max_drones=1]
-hub: conv_restricted5 14 0 [zone=restricted color=darkred max_drones=1]
-hub: conv_restricted6 15 0 [zone=restricted color=darkred max_drones=1]
+hub: conv_normal4 13 0 [zone=normal color=darkred max_drones=1]
+hub: conv_normal5 14 0 [zone=normal color=darkred max_drones=1]
+hub: conv_normal6 15 0 [zone=normal color=darkred max_drones=1]
 
-hub: conv_restricted7 13 -2 [zone=restricted color=darkred max_drones=1]
-hub: conv_restricted8 14 -2 [zone=restricted color=darkred max_drones=1]
-hub: conv_restricted9 15 -2 [zone=restricted color=darkred max_drones=1]
+hub: conv_normal7 13 -2 [zone=normal color=darkred max_drones=1]
+hub: conv_normal8 14 -2 [zone=normal color=darkred max_drones=1]
+hub: conv_normal9 15 -2 [zone=normal color=darkred max_drones=1]
 
 # === LAYER 5: The Final Gauntlet of Doom ===
 hub: final_merge 16 0 [color=violet max_drones=5]
@@ -160,20 +160,20 @@ connection: priority_trap1-priority_trap2
 connection: priority_trap3-priority_trap4
 
 # Layer 4 connections (convergence hell)
-connection: false_hope3-conv_restricted1
-connection: false_hope3-conv_restricted4
-connection: false_hope3-conv_restricted7
+connection: false_hope3-conv_normal1
+connection: false_hope3-conv_normal4
+connection: false_hope3-conv_normal7
 
-connection: conv_restricted1-conv_restricted2
-connection: conv_restricted2-conv_restricted3
-connection: conv_restricted4-conv_restricted5
-connection: conv_restricted5-conv_restricted6
-connection: conv_restricted7-conv_restricted8
-connection: conv_restricted8-conv_restricted9
+connection: conv_normal1-conv_normal2
+connection: conv_normal2-conv_normal3
+connection: conv_normal4-conv_normal5
+connection: conv_normal5-conv_normal6
+connection: conv_normal7-conv_normal8
+connection: conv_normal8-conv_normal9
 
-connection: conv_restricted3-final_merge
-connection: conv_restricted6-final_merge
-connection: conv_restricted9-final_merge
+connection: conv_normal3-final_merge
+connection: conv_normal6-final_merge
+connection: conv_normal9-final_merge
 
 # Layer 5 connections (final gauntlet)
 connection: final_merge-final_torture1
@@ -184,6 +184,6 @@ connection: final_torture4-final_torture5
 connection: final_torture5-impossible_goal
 
 # Emergency bypass routes (extremely expensive)
-connection: overflow_hell1-conv_restricted1
-connection: overflow_hell4-conv_restricted7
-connection: priority_trap1-conv_restricted4
+connection: overflow_hell1-conv_normal1
+connection: overflow_hell4-conv_normal7
+connection: priority_trap1-conv_normal4

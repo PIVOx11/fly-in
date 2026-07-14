@@ -17,14 +17,61 @@ class Display(arcade.Window):
         self.min_y = min(zone.y for zone in graph.zones.values())
         self.max_y = max(zone.y for zone in graph.zones.values())
         self.margin = 120
-        self.curent_turn = 0
+        self.curent_turn = 1
         self.dron_progress = 1
-        self.drone_speed = 0.5
+        self.drone_speed = 0.2
 
-        for drone in graph.drones:
-            drone.curent_zone = graph.start
-            drone.target_zone = None
-            drone.x, drone.y = drone.curent_zone.x, drone.curent_zone.y
+        self.dis_drones = {
+            drone.id : {
+                "x": graph.start.x,
+                "y": graph.start.y,
+                "start_x": graph.start.x,
+                "start_y": graph.start.y,
+                "target_x": graph.start.x,
+                "target_y": graph.start.y,
+                "moving": False
+            } for drone in graph.drones
+        }
+
+    def on_update(self, delta_time):
+        if self.curent_turn > len(self.sim_data):
+            for drone in self.dis_drones:
+                self.dis_drones[drone]["x"] = self.dis_drones[drone]["target_x"]
+                self.dis_drones[drone]["y"] = self.dis_drones[drone]["target_y"]
+            return
+
+        if self.dron_progress >= 1:
+            for drone in self.dis_drones:
+                self.dis_drones[drone]["moving"] = False
+
+            self.dron_progress = 0
+
+            for move in self.sim_data[self.curent_turn]:
+                for drone, dest in move.items():
+                    dest = self.graph.zones[dest]
+                    self.dis_drones[drone.id]["start_x"] = self.dis_drones[drone.id]["target_x"]
+                    self.dis_drones[drone.id]["start_y"] = self.dis_drones[drone.id]["target_y"]
+                    self.dis_drones[drone.id]["target_x"] = dest.x
+                    self.dis_drones[drone.id]["target_y"] = dest.y
+                    self.dis_drones[drone.id]["moving"] = True
+            self.curent_turn += 1
+
+        for drone in self.dis_drones:
+            if not self.dis_drones[drone]["moving"]:
+                continue
+            self.dis_drones[drone]["x"] = (
+                self.dis_drones[drone]["start_x"] + (
+                    self.dis_drones[drone]["target_x"] - self.dis_drones[drone]["start_x"]
+                ) * self.dron_progress
+            )
+    
+            self.dis_drones[drone]["y"] = (
+                            self.dis_drones[drone]["start_y"] + (
+                                self.dis_drones[drone]["target_y"] - self.dis_drones[drone]["start_y"]
+                            ) * self.dron_progress
+            )
+
+        self.dron_progress += 0.09
 
     def on_draw(self):
         self.clear()
@@ -64,32 +111,9 @@ class Display(arcade.Window):
                     bold=True, font_name="calibri"
                     )
                 name_counter += 10
-        for drone in self.graph.drones:
-            self.draw_drone(drone.id, drone.x, drone.y)
-
-    def on_update(self, delta_time):
-        if self.curent_turn > len(self.sim_data):
-            return
-    
-        self.dron_progress += 0.01
-
-        if self.curent_turn > 0:
-            for move in self.sim_data[self.curent_turn]:
-                for drone, dest in move.items():
-                    dest = self.graph.zones[dest]
-                    drone.curent_zone = drone.next_zone if\
-                        drone.next_zone else drone.curent_zone
-                    drone.next_zone = dest
-
-                    drone.x = drone.curent_zone.x + \
-                            (dest.x - drone.curent_zone.x) * self.dron_progress
-
-                    drone.y = drone.curent_zone.y + \
-                            (dest.y - drone.curent_zone.y) * self.dron_progress   
-
-        if self.dron_progress >= 1:
-                    self.dron_progress = 0
-                    self.curent_turn += 1
+        for id in self.dis_drones:
+            drone = self.dis_drones[id]
+            self.draw_drone(id, drone["x"], drone["y"])
 
     def draw_drone(self, id, x, y):
             cx, cy, scale = self.get_cordonate(x, y)

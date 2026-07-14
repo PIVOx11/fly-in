@@ -3,7 +3,6 @@ from map_parser import Parser
 from error_handling import ParsingError, SimulationError
 from simulation import Simulation
 from display import Display
-from tools.arcade_visualizer import DroneVisualizerApp
  
 if __name__ == "__main__":
     from rich import print
