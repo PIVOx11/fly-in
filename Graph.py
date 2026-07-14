@@ -1,13 +1,15 @@
 class Drone:
 
     def __init__(self, id: int):
+        self.x = 0
+        self.y = 0
         self.id = id
         self.path = []
         self.index = 0
         self.to_arrive = 0
         self.finish = False
         self.next_zone: Zone = None
-        self.prev_zone: Zone = None
+        self.curent_zone: Zone = None
         self.connect = Connection
 
     def update_data(self, path = None):

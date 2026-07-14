@@ -1,4 +1,4 @@
-MAP = maps/challenger/01_the_impossible_dream.txt
+MAP = /home/blidriss/Desktop/fly-in/maps/hard/03_ultimate_challenge.txt
 run:
 	uv run main.py ${MAP}
 

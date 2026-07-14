@@ -17,43 +17,14 @@ class Display(arcade.Window):
         self.min_y = min(zone.y for zone in graph.zones.values())
         self.max_y = max(zone.y for zone in graph.zones.values())
         self.margin = 120
-        self.d_image = arcade.load_texture("assert/drone.png")
-        self.drone_x = 0
-        self.drone_y = 0
-        self.drone_progress = 0
+        self.curent_turn = 0
+        self.dron_progress = 1
+        self.drone_speed = 0.5
 
-    def get_cordonate(self, x: int, y: int):
-        MAX_SCALE = 175
-        usable_width = self.width - self.margin
-        usable_height = self.height - self.margin
-
-        dx = self.max_x - self.min_x
-        dy = self.max_y - self.min_y
-
-        scale_x = usable_width / max(dx, 1)
-        scale_y = usable_height / max(dy, 1)
-
-        scale = min(scale_x, scale_y, MAX_SCALE)
-
-        start_x = (self.width - dx * scale) / 2
-        start_y = (self.height - dy * scale) / 2 
-
-        screen_x = start_x + x * scale
-        screen_y = start_y + y * scale + 200
-
-        return screen_x, screen_y, scale
-
-    def on_update(self):
-        if self.drone_progress < 1:
-            self.drone_progress += 0.2
-            self.drone_x, self.drone_y, self.scale = self.get_cordonate(
-                self.graph.start.x, self.graph.start.y
-            )
-            self.drone_x *= self.drone_progress
-            self.drone_y *= self.drone_progress
-        else:
-            self.drone_progress = 0
-
+        for drone in graph.drones:
+            drone.curent_zone = graph.start
+            drone.target_zone = None
+            drone.x, drone.y = drone.curent_zone.x, drone.curent_zone.y
 
     def on_draw(self):
         self.clear()
@@ -85,7 +56,6 @@ class Display(arcade.Window):
                 color=(255, 0, 0)
                 )
             name_counter = 30
-
             # draw the zone name
             for name in zone.name.split("_", 1)[::-1]:
                 arcade.draw_text(
@@ -94,8 +64,56 @@ class Display(arcade.Window):
                     bold=True, font_name="calibri"
                     )
                 name_counter += 10
-        # Draw Drones :) TO DO
+        for drone in self.graph.drones:
+            self.draw_drone(drone.id, drone.x, drone.y)
 
-        x,y, scale = self.get_cordonate(self.graph.start.x, self.graph.start.y)
-        arcade.draw_texture_rect(self.d_image, arcade.LBWH(x - 20, y - 20, 40, 40))
+    def on_update(self, delta_time):
+        if self.curent_turn > len(self.sim_data):
+            return
+    
+        self.dron_progress += 0.01
 
+        if self.curent_turn > 0:
+            for move in self.sim_data[self.curent_turn]:
+                for drone, dest in move.items():
+                    dest = self.graph.zones[dest]
+                    drone.curent_zone = drone.next_zone if\
+                        drone.next_zone else drone.curent_zone
+                    drone.next_zone = dest
+
+                    drone.x = drone.curent_zone.x + \
+                            (dest.x - drone.curent_zone.x) * self.dron_progress
+
+                    drone.y = drone.curent_zone.y + \
+                            (dest.y - drone.curent_zone.y) * self.dron_progress   
+
+        if self.dron_progress >= 1:
+                    self.dron_progress = 0
+                    self.curent_turn += 1
+
+    def draw_drone(self, id, x, y):
+            cx, cy, scale = self.get_cordonate(x, y)
+            arcade.draw_circle_filled(cx , cy, scale * 0.1, arcade.color.YELLOW)
+            arcade.draw_text(id, (cx) - 8, cy - 4, arcade.color.BLACK, scale * 0.08, bold=True)
+            return
+
+    def get_cordonate(self, x: int, y: int):
+        MAX_SCALE = 175
+        usable_width = self.width - self.margin
+        usable_height = self.height - self.margin
+
+        dx = self.max_x - self.min_x
+        dy = self.max_y - self.min_y
+
+        scale_x = usable_width / max(dx, 1)
+        scale_y = usable_height / max(dy, 1)
+
+        scale = min(scale_x, scale_y, MAX_SCALE)
+
+        start_x = (self.width - dx * scale) / 2
+        start_y = (self.height - dy * scale) / 2 
+
+        screen_x = start_x + x * scale
+        screen_y = start_y + y * scale + 200
+
+        return screen_x, screen_y, scale
