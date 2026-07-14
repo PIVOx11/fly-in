@@ -46,8 +46,14 @@ class Display(arcade.Window):
     def on_update(self):
         if self.drone_progress < 1:
             self.drone_progress += 0.2
-            self.drone_x, self.drone_y, self.scale = self.get_cordonate()
+            self.drone_x, self.drone_y, self.scale = self.get_cordonate(
+                self.graph.start.x, self.graph.start.y
+            )
+            self.drone_x *= self.drone_progress
+            self.drone_y *= self.drone_progress
         else:
+            self.drone_progress = 0
+
 
     def on_draw(self):
         self.clear()
