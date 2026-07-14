@@ -61,8 +61,9 @@ class Simulation:
         for path in self.pivox_algo(self.graph.drone_count):
             self.paths.append(Path(path[0], path[1]))
         
-        while len(self.paths) > 4:
+        while len(self.paths) > 2:
             self.paths.pop()
+
 
         for drone in self.graph.drones:
             best_path = min(self.paths, key=lambda x: x.cost + len(x.assign))
