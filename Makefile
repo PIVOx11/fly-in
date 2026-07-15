@@ -11,4 +11,4 @@ clean:
 	rm -rf __pycache__
 
 flake:
-	flake8
+	flake8 .

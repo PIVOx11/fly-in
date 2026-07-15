@@ -1,7 +1,5 @@
 import arcade
 from Graph import Drone, Connection, Zone, Graph
-import time
-import copy
 
 class Display(arcade.Window):
     def __init__(self, graph: Graph = None, sim_data= None):
@@ -95,12 +93,13 @@ class Display(arcade.Window):
                     self.dis_drones[drone.id]["moving"] = True
                 
     def draw_score(self):
-        score = f"score: {min(self.curent_turn, len(self.sim_data))} "\
+        score = f"TURNS: {min(self.curent_turn, len(self.sim_data))} "\
                 f"/ {len(self.sim_data)}"
         arcade.draw_text(
-            score, self.width - self.width + 75,
+            score,100,
             self.height - 50,
-            arcade.color.WHITE, 18, anchor_x="center"
+            arcade.color.WHITE, 18, anchor_x="center",
+            bold=True
         )
     def on_draw(self):
         self.clear()

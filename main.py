@@ -1,5 +1,5 @@
 import sys
-from map_parser import Parser
+from parser import Parser
 from error_handling import ParsingError, SimulationError
 from simulation import Simulation
 from display import Display
@@ -8,8 +8,9 @@ if __name__ == "__main__":
     from rich import print
  
     try:
-        parse = Parser(sys.argv[1])
-        graph = parse.generate_graph()
+        parser = Parser()
+        graph = parser.Graph_generator(sys.argv[1])
+        print(graph)
  
         sim = Simulation(graph)
         sim_data = sim.run()

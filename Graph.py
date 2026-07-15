@@ -80,7 +80,7 @@ class Zone:
             name: str,
             x: int, y: int,
             connections: list | None = None,
-            color: str | None = None,
+            color: str = "gray",
             zone_type: str = "normal",
             max_drones: int = 1
             ):
@@ -120,6 +120,7 @@ class Zone:
             f"\nDrones[{self.drones or 'empty'}]"
             f"\nCapacity: {self.max_drones}"
             f"\ncost: {self.get_cost()}\n"
+            f"color: {self.color}\n"
             f"\nZone_type: {self.zone_type}\n"
         )
 

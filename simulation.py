@@ -71,8 +71,13 @@ class Simulation:
             drone.update_data(best_path.path)
         
         return self.paths
+    def create_drones(self):
+        for id in range(1, self.graph.drone_count + 1):
+            self.graph.drones.append(Drone(id))
+        self.graph.start.drones = self.graph.drones[:]
 
     def run(self):
+        self.create_drones()
         self.drone_path()
         sim_data: dict[int, list[dict[Zone, list[Drone]]]] = {} 
         turns: int = 0
@@ -106,9 +111,9 @@ class Simulation:
                 print(f"{drone}-{destination}", end=" ")
                 if drone.to_arrive == 0:
                     moves.remove(drone)
-                sim_data[turns].append({drone: destination}) 
+                sim_data[turns].append({drone: destination})
 
-            print("\n")
+            print("\n") 
 
         print(f"Simulation are over withen: {turns} turn")
         return sim_data
