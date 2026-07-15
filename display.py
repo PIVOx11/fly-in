@@ -1,6 +1,7 @@
 import arcade
 from Graph import Drone, Connection, Zone, Graph
-
+import time
+import copy
 
 class Display(arcade.Window):
     def __init__(self, graph: Graph = None, sim_data= None):
@@ -17,10 +18,9 @@ class Display(arcade.Window):
         self.min_y = min(zone.y for zone in graph.zones.values())
         self.max_y = max(zone.y for zone in graph.zones.values())
         self.margin = 120
-        self.curent_turn = 1
-        self.dron_progress = 1
-        self.drone_speed = 0.2
-
+        self.curent_turn = 0
+        self.dron_progress = 0
+        self.drone_speed = 0.02
         self.dis_drones = {
             drone.id : {
                 "x": graph.start.x,
@@ -35,26 +35,15 @@ class Display(arcade.Window):
 
     def on_update(self, delta_time):
         if self.curent_turn > len(self.sim_data):
-            for drone in self.dis_drones:
-                self.dis_drones[drone]["x"] = self.dis_drones[drone]["target_x"]
-                self.dis_drones[drone]["y"] = self.dis_drones[drone]["target_y"]
             return
 
         if self.dron_progress >= 1:
-            for drone in self.dis_drones:
-                self.dis_drones[drone]["moving"] = False
-
-            self.dron_progress = 0
-
-            for move in self.sim_data[self.curent_turn]:
-                for drone, dest in move.items():
-                    dest = self.graph.zones[dest]
-                    self.dis_drones[drone.id]["start_x"] = self.dis_drones[drone.id]["target_x"]
-                    self.dis_drones[drone.id]["start_y"] = self.dis_drones[drone.id]["target_y"]
-                    self.dis_drones[drone.id]["target_x"] = dest.x
-                    self.dis_drones[drone.id]["target_y"] = dest.y
-                    self.dis_drones[drone.id]["moving"] = True
             self.curent_turn += 1
+            for visual in self.dis_drones.values():
+                if visual["moving"]:
+                    visual["x"] = visual["target_x"]
+                    visual["y"] = visual["target_y"]
+            self.load_new_derections()
 
         for drone in self.dis_drones:
             if not self.dis_drones[drone]["moving"]:
@@ -71,12 +60,53 @@ class Display(arcade.Window):
                             ) * self.dron_progress
             )
 
-        self.dron_progress += 0.09
+        self.dron_progress += self.drone_speed
 
+    def load_new_derections(self):
+        for drone in self.dis_drones:
+            self.dis_drones[drone]["moving"] = False
+
+        self.dron_progress = 0
+
+        for move in self.sim_data.get(self.curent_turn, []):
+            if not move:
+                break
+
+            for drone, dest in move.items():
+                start_x = self.dis_drones[drone.id]["target_x"]
+                start_y = self.dis_drones[drone.id]["target_y"]
+
+                if "-" in dest:
+                    start, dest = dest.split("-")
+                    start = self.graph.zones[start]
+                    dest = self.graph.zones[dest]
+                    self.dis_drones[drone.id]["start_x"] = start_x
+                    self.dis_drones[drone.id]["start_y"] = start_y
+                    self.dis_drones[drone.id]["target_x"] = (start.x + dest.x) / 2
+                    self.dis_drones[drone.id]["target_y"] = (start.y + dest.y) / 2
+                    self.dis_drones[drone.id]["moving"] = True
+
+                else:
+                    dest = self.graph.zones[dest]
+                    self.dis_drones[drone.id]["start_x"] = start_x
+                    self.dis_drones[drone.id]["start_y"] = start_y
+                    self.dis_drones[drone.id]["target_x"] = dest.x
+                    self.dis_drones[drone.id]["target_y"] = dest.y
+                    self.dis_drones[drone.id]["moving"] = True
+                
+    def draw_score(self):
+        score = f"score: {min(self.curent_turn, len(self.sim_data))} "\
+                f"/ {len(self.sim_data)}"
+        arcade.draw_text(
+            score, self.width - self.width + 75,
+            self.height - 50,
+            arcade.color.WHITE, 18, anchor_x="center"
+        )
     def on_draw(self):
         self.clear()
         draw_conect = set()
 
+        self.draw_score()
         # draw connections
         for c in self.graph.zones.values():
             for con in c.connections.values():
@@ -102,7 +132,8 @@ class Display(arcade.Window):
                 x, y, radius=scale * 0.30,
                 color=(255, 0, 0)
                 )
-            name_counter = 30
+            name_counter = scale / 3
+
             # draw the zone name
             for name in zone.name.split("_", 1)[::-1]:
                 arcade.draw_text(
@@ -117,12 +148,23 @@ class Display(arcade.Window):
 
     def draw_drone(self, id, x, y):
             cx, cy, scale = self.get_cordonate(x, y)
-            arcade.draw_circle_filled(cx , cy, scale * 0.1, arcade.color.YELLOW)
-            arcade.draw_text(id, (cx) - 8, cy - 4, arcade.color.BLACK, scale * 0.08, bold=True)
+
+            arcade.draw_circle_filled(
+                cx , cy, scale * 0.2, arcade.color.YELLOW
+                )
+
+            arcade.draw_circle_filled(
+                cx, cy, scale * 0.15, (255, 255, 0, 40)
+                )
+
+            arcade.draw_text(
+                str(id), cx, cy, arcade.color.BLACK, scale * 0.15,
+                anchor_x="center", anchor_y="center", bold=True,
+                )
             return
 
     def get_cordonate(self, x: int, y: int):
-        MAX_SCALE = 175
+        MAX_SCALE = 160
         usable_width = self.width - self.margin
         usable_height = self.height - self.margin
 
@@ -138,6 +180,30 @@ class Display(arcade.Window):
         start_y = (self.height - dy * scale) / 2 
 
         screen_x = start_x + x * scale
-        screen_y = start_y + y * scale + 200
+        screen_y = start_y + y * scale
 
         return screen_x, screen_y, scale
+
+
+
+    def on_key_press(self, key, modifiers):
+
+        if key == arcade.key.R:
+            self.curent_turn = 0
+            self.dis_drones = {
+            drone.id : {
+                "x": self.graph.start.x,
+                "y": self.graph.start.y,
+                "start_x": self.graph.start.x,
+                "start_y": self.graph.start.y,
+                "target_x": self.graph.start.x,
+                "target_y": self.graph.start.y,
+                "moving": False
+            } for drone in self.graph.drones
+        }
+            
+        if key == arcade.key.UP:
+            self.drone_speed = min(1, self.drone_speed + 0.01)
+
+        if key == arcade.key.DOWN:
+            self.drone_speed = max(0.01, self.drone_speed - 0.01)

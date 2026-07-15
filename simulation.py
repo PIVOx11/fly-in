@@ -80,7 +80,8 @@ class Simulation:
         print("\n")
 
         while not self.graph.is_over():
-            sim_data[turns + 1] = []
+            turns += 1
+            sim_data[turns] = []
             
             for drone in self.graph.drones:
 
@@ -105,10 +106,9 @@ class Simulation:
                 print(f"{drone}-{destination}", end=" ")
                 if drone.to_arrive == 0:
                     moves.remove(drone)
-                sim_data[turns + 1].append({drone: destination}) 
+                sim_data[turns].append({drone: destination}) 
 
             print("\n")
-            turns += 1
 
         print(f"Simulation are over withen: {turns} turn")
         return sim_data
