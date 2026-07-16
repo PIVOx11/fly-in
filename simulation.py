@@ -83,7 +83,6 @@ class Simulation:
         sim_data: dict[int, list[dict[Drone, str]]] = {}
         turns: int = 0
         moves = []
-        print("\n")
 
         while not self.graph.is_over():
             turns += 1
@@ -109,14 +108,10 @@ class Simulation:
                 else:
                     destination = drone.Execute_move()
 
-                print(f"{drone}-{destination}", end=" ")
                 if drone.to_arrive == 0:
                     moves.remove(drone)
                 sim_data[turns].append({drone: destination})
 
-            print("\n")
-
-        print(f"Simulation are over withen: {turns} turn")
         return sim_data
 
     def djikstra(self, start: Zone, target: Zone) -> list[Zone] | None:
@@ -241,3 +236,87 @@ class Simulation:
 
         for c in connections:
             c.active = True
+
+    def output(self, simulation: dict) -> None:
+        if not simulation:
+            return
+        from rich import print
+        COLORS = {
+            "default": "grey70",
+            "black": "black",
+            "white": "white",
+            "grey": "grey70",
+            "gray": "grey70",
+            "red": "red",
+            "darkred": "dark_red",
+            "maroon": "dark_red",
+            "crimson": "red3",
+            "firebrick": "red3",
+            "salmon": "salmon1",
+            "pink": "hot_pink",
+            "orange": "orange3",
+            "coral": "coral",
+            "gold": "yellow",
+            "yellow": "yellow",
+            "khaki": "khaki1",
+            "green": "green",
+            "lime": "green3",
+            "olive": "olive",
+            "forest": "green4",
+            "darkgreen": "dark_green",
+            "spring": "spring_green3",
+            "blue": "blue",
+            "navy": "navy_blue",
+            "sky": "sky_blue1",
+            "cyan": "cyan",
+            "teal": "cyan3",
+            "turquoise": "turquoise2",
+            "aqua": "bright_cyan",
+            "purple": "magenta",
+            "violet": "violet",
+            "indigo": "purple4",
+            "lavender": "plum1",
+            "magenta": "magenta",
+            "brown": "brown",
+            "tan": "tan",
+            "chocolate": "sandy_brown",
+            "silver": "grey85",
+            "beige": "wheat1",
+            "rainbow": "bold bright_magenta",
+            }
+
+        for turn, data in simulation.items():
+            print(f"Turn{turn}: ", end="")
+
+            for move in data:
+                (drone, dest), = move.items()
+                if "-" in dest:
+                    zone1, zone2 = dest.split('-')
+                    zone1, zone2 = self.graph.zones[zone1],\
+                        self.graph.zones[zone2]
+
+                    color1, color2 = zone1.color.lower(), zone2.color.lower()
+
+                    if color1 not in COLORS:
+                        color1 = "default"
+                    if color2 not in COLORS:
+                        color2 = "default"
+
+                    print(
+                        f"{drone}-[{color1}]{zone1.name}[/{color1}]--"
+                        f"[{color2}]{zone2.name}[/{color2}]",
+                        end=" "
+                    )
+
+                else:
+                    zone = self.graph.zones[dest]
+                    color = zone.color.lower()
+
+                    if not color in COLORS:
+                        color = "default"
+
+                    print(
+                        f"{drone}-[{COLORS[color]}]{zone.name}[/{COLORS[color]}]", end=" "
+                        )
+            print()
+                

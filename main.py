@@ -19,9 +19,9 @@ if __name__ == "__main__":
         graph = parser.Graph_generator(file)
         sim = Simulation(graph)
         sim_data = sim.run()
-
-        display = Display(sim_data, graph)
-        display.run()
+        sim.output(sim_data)
+        # display = Display(sim_data, graph)
+        # display.run()
 
     except (ParsingError, SimulationError) as e:
         over_print(f"[red]{e}[/red]")
