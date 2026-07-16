@@ -1,12 +1,15 @@
 import arcade
-from Graph import Drone, Connection, Zone, Graph
+from Graph import Graph
+from time import sleep
+from random import choice
+
 
 class Display(arcade.Window):
     def __init__(self, graph: Graph = None, sim_data= None):
 
         super().__init__(resizable=True, title="Fly-in | by: blidriss")
 
-        self.background_color = arcade.color.BLACK
+        self.background = arcade.load_texture("assets/background.png")
         self.graph = graph
         self.sim_data = sim_data
         self.auto_scale_x = 0
@@ -31,11 +34,17 @@ class Display(arcade.Window):
             } for drone in graph.drones
         }
 
+        self.colors = [
+            "RED", "ORANGE", "YELLOW", "GREEN", "BLUE", "INDIGO",
+            "VIOLET"
+            ]
+
     def on_update(self, delta_time):
         if self.curent_turn > len(self.sim_data):
             return
 
         if self.dron_progress >= 1:
+            sleep(0.09)
             self.curent_turn += 1
             for visual in self.dis_drones.values():
                 if visual["moving"]:
@@ -103,6 +112,9 @@ class Display(arcade.Window):
         )
     def on_draw(self):
         self.clear()
+        arcade.draw_texture_rect(
+            self.background,
+            arcade.LBWH(0, 0, self.width, self.height))
         draw_conect = set()
 
         self.draw_score()
@@ -122,14 +134,22 @@ class Display(arcade.Window):
                     )
 
         # Draw zones :)
+        default_color = arcade.color.GRAY
+
         for zone in self.graph.zones.values():
+            zone_color = getattr(arcade.color, zone.color, default_color)
+            if zone.color == "RAINBOW":
+                zone_color = getattr(arcade.color, choice(self.colors), default_color)
+                
+
             z_x = zone.x
             z_y = zone.y
 
             x, y, scale = self.get_cordonate(z_x, z_y)
+
             arcade.draw_circle_filled(
                 x, y, radius=scale * 0.30,
-                color=(255, 0, 0)
+                color=zone_color
                 )
             name_counter = scale / 3
 
@@ -146,24 +166,20 @@ class Display(arcade.Window):
             self.draw_drone(id, drone["x"], drone["y"])
 
     def draw_drone(self, id, x, y):
-            cx, cy, scale = self.get_cordonate(x, y)
+        cx, cy, scale = self.get_cordonate(x, y)
 
-            arcade.draw_circle_filled(
-                cx , cy, scale * 0.2, arcade.color.YELLOW
-                )
+        arcade.draw_circle_filled(
+            cx , cy, scale * 0.2, arcade.color.YELLOW
+            )
 
-            arcade.draw_circle_filled(
-                cx, cy, scale * 0.15, (255, 255, 0, 40)
-                )
-
-            arcade.draw_text(
-                str(id), cx, cy, arcade.color.BLACK, scale * 0.15,
-                anchor_x="center", anchor_y="center", bold=True,
-                )
-            return
+        arcade.draw_text(
+            str(id), cx, cy, arcade.color.BLACK, scale * 0.15,
+            anchor_x="center", anchor_y="center", bold=True,
+            )
+        return
 
     def get_cordonate(self, x: int, y: int):
-        MAX_SCALE = 160
+        MAX_SCALE = 100
         usable_width = self.width - self.margin
         usable_height = self.height - self.margin
 

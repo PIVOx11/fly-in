@@ -233,7 +233,11 @@ class Parser:
                 f"Line {index}: Invalid Connection format between "
                 f"zones '{zones}'\n"
                 "Example: <zone1>-<zone2> | (gate1-waiting_area1)")
-
+        if zone_1 == zone_2:
+            raise ParsingError(
+                            f"Line {index}: Connection between "
+                            f"The same zone is forbiden, {zone_1}-{zone_2}"
+                        )
         if zone_1 not in self.graph.zones:
             raise ParsingError(
                 f"Line {index}: Zone {zone_1} Not Found"
@@ -296,7 +300,7 @@ class Parser:
                 "ERROR: No start zone included"
                 )
 
-        if not self.graph.start:
+        if not self.graph.end:
             raise ParsingError(
                 "ERROR: No End zone included"
                 )
