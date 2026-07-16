@@ -1,8 +1,9 @@
 from error_handling import MapError
-from Graph import Graph, Zone, Drone, Connection
+from Graph import Graph, Zone, Drone
 from collections import deque
 import heapq
 from collections import defaultdict
+from typing import Any
 
 
 class Path:
@@ -12,32 +13,35 @@ class Path:
         self.cost = cost
         self.path = path
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
                 f"Path: {[zone.name for zone in self.path]}\n"
                 f"Cost: {self.cost}\n"
-                f"asigned to: {self.assign if self.assign else 'NO DRONE YET'}\n\n"
+                "asigned to: "
+                f"{self.assign if self.assign else 'NO DRONE YET'}\n\n"
             )
 
 
 class Simulation:
     def __init__(self, graph: Graph):
-        self.graph = graph
-        self.paths = []
+        self.graph: Graph = graph
+        self.paths: list[Path] = []
 
-    def graph_validate(self) -> list[Zone] | None:
+    def graph_validate(self) -> None:
         path = self.bfs_search(self.graph.start, self.graph.end)
         if not path:
             raise MapError(
                 "There is no path between start and end point .")
 
-    def bfs_search(self, start: Zone, target: Zone):
+    def bfs_search(
+            self, start: Zone, target: Zone
+            ) -> list[tuple[str, int]] | None:
         queue = deque([start])
         visited = {start}
         parent = {start: None}
 
         while queue:
-            zone = queue.popleft()
+            zone: Any = queue.popleft()
 
             if zone == target:
                 path = []
@@ -46,7 +50,7 @@ class Simulation:
                     total += zone.get_cost()
                     path.append((zone.name, zone.get_cost()))
                     zone = parent[zone]
-                return path[::-1], f"Total is {total - 1}"
+                return path[::-1]
 
             for connection in zone.connections.values():
                 n = connection.first if connection.first != zone\
@@ -57,29 +61,26 @@ class Simulation:
                     queue.append(n)
         return None
 
-    def drone_path(self):
-        for path in self.pivox_algo(self.graph.drone_count):
+    def drone_path(self) -> list[Path]:
+        for path in self.yen(4):
             self.paths.append(Path(path[0], path[1]))
-        
-        while len(self.paths) > 2:
-            self.paths.pop()
-
 
         for drone in self.graph.drones:
             best_path = min(self.paths, key=lambda x: x.cost + len(x.assign))
             best_path.assign.append(drone)
             drone.update_data(best_path.path)
-        
+
         return self.paths
-    def create_drones(self):
+
+    def create_drones(self) -> None:
         for id in range(1, self.graph.drone_count + 1):
             self.graph.drones.append(Drone(id))
         self.graph.start.drones = self.graph.drones[:]
 
-    def run(self):
+    def run(self) -> dict[int, list[dict[Drone, str]]]:
         self.create_drones()
         self.drone_path()
-        sim_data: dict[int, list[dict[Zone, list[Drone]]]] = {} 
+        sim_data: dict[int, list[dict[Drone, str]]] = {}
         turns: int = 0
         moves = []
         print("\n")
@@ -87,7 +88,7 @@ class Simulation:
         while not self.graph.is_over():
             turns += 1
             sim_data[turns] = []
-            
+
             for drone in self.graph.drones:
 
                 if drone.finish or drone in moves:
@@ -113,22 +114,22 @@ class Simulation:
                     moves.remove(drone)
                 sim_data[turns].append({drone: destination})
 
-            print("\n") 
+            print("\n")
 
         print(f"Simulation are over withen: {turns} turn")
         return sim_data
 
-
-    def djikstra(self, start: Zone, target: Zone, path=[]) -> list[Zone] | None:
+    def djikstra(self, start: Zone, target: Zone) -> list[Zone] | None:
         """
-            Find The most cheapest Path from stariting slected Zone to a target Zone :)
+            Find The most cheapest Path from
+            stariting slected Zone to a target Zone :)
         """
 
-        visited = {zone for zone in path}
+        visited = set()
         parent = {start: None}
-        distance = defaultdict(lambda: float("inf"))
+        distance: defaultdict = defaultdict(lambda: float("inf"))
         distance[start] = 0
-        queue = []
+        queue: list = []
         path = []
 
         heapq.heappush(queue, (0, start.name))
@@ -171,17 +172,17 @@ class Simulation:
 
         return None
 
-    def pivox_algo(self, path_count: int):
+    def yen(self, path_count: int) -> list[tuple[int, list[Zone]]]:
         valid_paths: list[tuple[int, list[Zone]]] = []
 
         path = self.djikstra(self.graph.start, self.graph.end)
         valid_paths.append(self.get_path_cost(path))
         candidates = []
         c_to_remove = set()
+        old_path: Any
 
         while len(valid_paths) < path_count:
-            path = valid_paths[-1] # Back to it later :)
-            path = path[1] # Back to it later :)
+            path = valid_paths[-1][1]
             for i in range(len(path) - 1):
 
                 root = path[:i + 1]
@@ -196,10 +197,11 @@ class Simulation:
 
                     path_root = old_path[:i + 1]
                     if root == path_root:
-                        c_to_remove.add(path_root[-1].connections[old_path[i + 1].name])
+                        c_to_remove.add(
+                            path_root[-1].connections[old_path[i + 1].name])
 
                 self.connections_handler(c_to_remove, True)
-                cand = self.djikstra(root[-1], self.graph.end, root[:-1])
+                cand = self.djikstra(root[-1], self.graph.end)
                 self.connections_handler(c_to_remove, False)
                 c_to_remove.clear()
 
@@ -207,7 +209,7 @@ class Simulation:
                     continue
 
                 cand = root[:-1] + cand
-                candidates.append(self.get_path_cost(cand)) 
+                candidates.append(self.get_path_cost(cand))
 
             while candidates:
                 best = min(candidates, key=lambda p: p[0])
@@ -223,7 +225,7 @@ class Simulation:
 
         return valid_paths
 
-    def get_path_cost(self, path: list[Zone]) -> tuple[int, list[Zone]]:
+    def get_path_cost(self, path: list[Zone] | Any) -> tuple[int, list[Zone]]:
         cost = 0
 
         for zone in path:
@@ -231,7 +233,7 @@ class Simulation:
 
         return (cost - 1, path)
 
-    def connections_handler(self, connections: Connection | list[Connection], active: bool) -> None:
+    def connections_handler(self, connections: set, active: bool) -> None:
         if active:
             for c in connections:
                 c.active = False

@@ -1,5 +1,7 @@
 from error_handling import ParsingError
-from Graph import Graph, Zone, Connection
+from Graph import Graph, Zone
+from typing import Any
+from typing import Callable
 
 
 class Parser:
@@ -7,17 +9,17 @@ class Parser:
         """
             Create Graph obj (Graph()) and open map file
         """
-        self.connections = set()
-        self.con_To_create = []
+        self.connections: set = set()
+        self.con_To_create: list = []
         self.coordinates: set[tuple] = set()
 
-    def save(self, line, index):
+    def save(self, line: str, index: int) -> None:
         self.con_To_create.append((line, index))
 
     def Graph_generator(self, map_path: str) -> Graph:
-        self.graph = Graph()
-
-        handler = {
+        self.graph: Graph = Graph()
+        line: Any
+        handler: dict[str, Callable] = {
             "nb_drones": self.valid_drones_nb,
             "start_hub": self.valid_hub,
             "end_hub": self.valid_hub,
@@ -65,7 +67,7 @@ class Parser:
         self.check()
         return self.graph
 
-    def valid_drones_nb(self, line: str, index: int) -> int | None:
+    def valid_drones_nb(self, line: list, index: int) -> None:
         if self.graph.drone_count:
             raise ParsingError(
                 f"Line {index}: Drone number Argument are duplicated.\n"
@@ -103,9 +105,9 @@ class Parser:
                 "Example : [green][bold]nb_drones: 12[/bold][/green][/italic]"
             )
 
-    def valid_hub(self, line: str, index: int) -> Zone:
+    def valid_hub(self, line: str, index: int) -> None:
         data = line[1].split(maxsplit=3)
-
+        metadata: Any
         if len(data) < 3:
             raise ParsingError(
                 f"Line {index}: Line format error\n"
@@ -163,7 +165,7 @@ class Parser:
 
         return name
 
-    def valid_integer(self, nb: str, index: int) -> int:
+    def valid_integer(self, nb: str | int, index: int) -> int:
         try:
             nb = int(nb)
         except ValueError:
@@ -172,7 +174,7 @@ class Parser:
             )
         return nb
 
-    def valid_hub_metadata(self, metadata: str, index: int) -> dict:
+    def valid_hub_metadata(self, metadata: Any, index: int) -> dict:
         AUTHO = {"max_drones", "zone", "color"}
         zone_t = {"normal", "blocked", "restricted", "priority"}
         found = {}
@@ -218,7 +220,7 @@ class Parser:
 
         return found
 
-    def valid_connection(self, line: str, index: int) -> Connection:
+    def valid_connection(self, line: Any, index: int) -> None:
         max_link = 1
         line = line[1].split()
         zones, metadata = line[0], line[1] if len(line) > 1 else None
@@ -263,7 +265,7 @@ class Parser:
         self.graph.add_connection(zone_1, zone_2, max_link)
 
     def valid_connections_metadata(
-            self, metadata: str, index: int) -> int | None:
+            self, metadata: str, index: int) -> int:
         AUTHO = {"max_link_capacity"}
 
         if not metadata.startswith('[') or not metadata.endswith(']'):
@@ -280,21 +282,21 @@ class Parser:
                 raise ParsingError(
                     f"Line {index}: Wrong metadata <{key}> "
                     "connection accept only Max_link_capacity .")
-            value = self.valid_integer(value, index)
+            nb = self.valid_integer(value, index)
         except ValueError:
             raise ParsingError(
                 f"Line {index}: Invalid metadata for Connection\n"
                 "Exmaple : 'max_link_capacity=1'"
                 )
 
-        if value <= 0:
+        if nb <= 0:
             raise ParsingError(
                 f"Line {index}: Max_link_capacity argument should be"
                 " valid positive integer .")
 
-        return value
+        return nb
 
-    def check(self):
+    def check(self) -> None:
         if not self.graph.start:
             raise ParsingError(
                 "ERROR: No start zone included"

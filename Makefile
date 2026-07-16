@@ -1,4 +1,5 @@
 MAP = maps/easy/01_linear_path.txt
+
 run:
 	uv run main.py ${MAP}
 
@@ -8,7 +9,8 @@ install_maps:
 	@rm maps.tar.gz
 
 clean:
-	rm -rf __pycache__
+	rm -rf __pycache__ .mypy_cache
 
-flake:
-	flake8 .
+lint:
+	flake8 *.py
+	mypy *.py --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
