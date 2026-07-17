@@ -6,7 +6,10 @@ from typing import Any
 
 
 class Path:
-
+    """
+        Class To creat the Path obj and store it's data
+        properties   
+    """
     def __init__(self, cost: int, path: list[Zone]):
         self.assign: list[Drone] = []
         self.cost = cost

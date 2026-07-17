@@ -8,6 +8,10 @@ from rich import print as over_print
 if __name__ == "__main__":
     file: str
 
+    if len(sys.argv) > 2:
+        over_print("The program take only one argument ('Path to the map')")
+        exit(1)
+
     if len(sys.argv) > 1:
         file = sys.argv[1]
     else:
@@ -21,6 +25,5 @@ if __name__ == "__main__":
         sim.output(sim_data)
         # display = Display(sim_data, graph)
         # display.run()
-
     except (ParsingError, MapError) as e:
         over_print(f"[red]{e}[/red]")

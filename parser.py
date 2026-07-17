@@ -20,6 +20,7 @@ class Parser(Simulation):
     def Graph_generator(self, map_path: str) -> Graph:
         self.graph: Graph = Graph()
         line: Any
+
         handler: dict[str, Callable] = {
             "nb_drones": self.valid_drones_nb,
             "start_hub": self.valid_hub,
@@ -29,6 +30,7 @@ class Parser(Simulation):
         }
 
         self.comments = 0
+
         try:
 
             if not map_path.strip().endswith(".txt"):
@@ -60,6 +62,7 @@ class Parser(Simulation):
                             "Autorized Keys: [/italic][bold]"
                             f"{[key for key in handler]}[/bold]"
                         )
+
                 for line, index in self.con_To_create:
                     self.valid_connection(line, index)
         except FileNotFoundError:
@@ -142,7 +145,7 @@ class Parser(Simulation):
         if (x, y) in self.coordinates:
             raise ParsingError(f"Line {index} duplicated conrdonates {x, y}")
         self.coordinates.add((x, y))
-        zone = Zone(name, x, y)
+        zone = Zone(name, x, y, index)
 
         if metadata and not metadata.strip().startswith('#'):
             metadata = self.valid_hub_metadata(metadata, index)
@@ -155,10 +158,19 @@ class Parser(Simulation):
                     zone.color = v.upper()
 
         if line[0] == "start_hub":
+            if self.graph.start:
+                raise ParsingError(
+                    f"Line{index}: start_hub is duplicated ."
+                )
+
             self.graph.start = zone
             zone.max_drones = float("inf")
 
         if line[0] == "end_hub":
+            if self.graph.end:
+                raise ParsingError(
+                    f"Line{index}: end_hub is duplicated ."
+                )
             self.graph.end = zone
             zone.max_drones = float("inf")
 
@@ -326,6 +338,17 @@ class Parser(Simulation):
         if not self.graph.start:
             raise ParsingError(
                 "ERROR: No start zone included"
+                )
+
+        if self.graph.start.zone_type == "blocked":
+            raise ParsingError(
+                f"Line {self.graph.start.line}: "
+                "Error Start Zone cannot be blocked ."
+                )
+        elif self.graph.end.zone_type == "blocked":
+            raise ParsingError(
+                f"Line {self.graph.end.line}: "
+                "Error End Zone cannot be blocked ."
                 )
 
         if not self.graph.end:

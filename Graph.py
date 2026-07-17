@@ -3,16 +3,20 @@ from typing import Any
 
 
 class Zone:
-
+    """
+        Represents a hub or waypoint in the graph.
+    """
     def __init__(
             self,
             name: str,
             x: int, y: int,
+            line: int,
             connections: dict | None = None,
             color: str = "gray",
             zone_type: str = "normal",
             max_drones: int | float = 1
             ):
+        """ Initialize The Zone obj"""
         self.name = name
         self.x = x
         self.y = y
@@ -22,20 +26,30 @@ class Zone:
         self.drones: list[Drone] = []
         self.zone_type = zone_type
         self.incoming = 0
+        self.line = line
 
     def can_fitt(self) -> bool:
+        """
+            Return True if the zone capacity can accept a drone.
+        """
         return self.incoming + len(self.drones) < self.max_drones
 
     def get_cost(self) -> int:
+        """
+            Return the movement cost of entering this zone.
+        """
         if self.zone_type == "restricted":
             return 2
         return 1
 
     def get_connection(self, zone: Zone) -> Connection | None:
-
+        """
+            Return the connection to the given zone.
+        """
         return self.connections.get(zone)
 
     def __repr__(self) -> str:
+        """Define the representation of the Zone obj"""
         conect = []
         for c in self.connections.values():
             if c.first == self:
@@ -55,12 +69,16 @@ class Zone:
 
 
 class Connection:
+    """
+        Represents a connection between two zones.
+    """
     def __init__(
             self,
             first: Zone,
             second: Zone,
             capacity: int = 1
             ):
+        """ Initialize The Connection obj"""
         self.first = first
         self.second = second
         self.capacity = capacity
@@ -69,64 +87,81 @@ class Connection:
         self.active = True
 
     def can_delever(self) -> int:
+        """
+            Return True if another drone can enter the connection.
+        """
         return len(self.drones) + self.incoming < self.capacity
 
     def other(self, zone: Zone) -> Zone:
+        """
+            Return the zone on the opposite of the connection.
+        """
         if zone == self.first:
             return self.second
         return self.first
 
     def __repr__(self) -> str:
+        """Define the representation of the Connection obj"""
         size = self.capacity
         return (f"{self.first.name} <---> {self.second.name} : "
                 f"dron_capacity={size}")
 
 
 class Graph:
+    """
+        Graph Class, to store zones and 
+        connections and drones .
+    """
     def __init__(self) -> None:
+        """ Initialize The Graph obj"""
         self.drones: list[Drone] = []
         self.zones: dict = {}
         self.start: Zone | Any = None
         self.end: Zone | Any = None
-        self.size = 0
         self.drone_count = 0
-        self.delevred = 0
-        self.simulation_end = False
 
     def add_zone(self, zone: Zone) -> None:
+        """Add a zone to the graph."""
+
         self.zones[zone.name] = zone
 
     def add_connection(self,
                        first: Zone,
                        second: Zone,
                        capacity: int = 1) -> None:
+        """Create a connection between two zones."""
+
         connection = Connection(first, second, capacity)
         first.connections[second.name] = connection
         second.connections[first.name] = connection
 
     def is_over(self) -> bool:
         """
-            Check if the simulation over by counting drones iside the end hub,
-            if it equal to the drone count it mean it's over,
-            all drones at the end hub
+            Return True when all drones reach the destination.
         """
+
         return len(self.end.drones) >= self.drone_count
 
     def __repr__(self) -> str:
+        """Define the representation of the Graph obj"""
+
         repr = [
             f"Start_hub:\n {self.start}",
             f"End_hub:\n {self.end}",
             "",
             "Zones:"
             ]
+
         for z in self.zones.values():
             repr.append(str(z))
+
         return "\n".join(repr)
 
 
 class Drone:
-
+    """Represents a drone moving through the graph."""
     def __init__(self, id: int) -> None:
+        """ Initialize The Drone obj"""
         self.x: int = 0
         self.y: int = 0
         self.id: int = id
@@ -139,6 +174,7 @@ class Drone:
         self.connect: Connection | Any
 
     def update_data(self, path: None | list[Zone] = None) -> None:
+        """Update the drone's path and movement data."""
 
         if path:
             self.path = path
@@ -152,6 +188,7 @@ class Drone:
         self.connect = self.curent_zone.connections[self.next_zone.name]
 
     def Execute_restricted(self) -> str:
+        """Execute restricted Moves"""
         self.to_arrive -= 1
 
         if self.to_arrive == 1:
@@ -171,9 +208,7 @@ class Drone:
         return self.curent_zone.name
 
     def Execute_move(self) -> str:
-        """
-            Execute The drone Move
-        """
+        """Move the drone to the next zone ."""
 
         self.next_zone.incoming -= 1
         self.connect.incoming -= 1
@@ -195,4 +230,5 @@ class Drone:
         return False
 
     def __repr__(self) -> str:
+        """Define the representation of the Drone obj"""
         return f"D{self.id}"
