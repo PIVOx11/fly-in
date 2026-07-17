@@ -1,8 +1,7 @@
 import sys
 from parser import Parser
-from error_handling import ParsingError, SimulationError
+from error_handling import ParsingError, MapError
 from simulation import Simulation
-from display import Display
 from rich import print as over_print
 
 
@@ -23,5 +22,5 @@ if __name__ == "__main__":
         # display = Display(sim_data, graph)
         # display.run()
 
-    except (ParsingError, SimulationError) as e:
+    except (ParsingError, MapError) as e:
         over_print(f"[red]{e}[/red]")

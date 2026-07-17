@@ -1,10 +1,11 @@
-from error_handling import ParsingError
+from error_handling import ParsingError, MapError
 from Graph import Graph, Zone
 from typing import Any
 from typing import Callable
+from simulation import Simulation
 
 
-class Parser:
+class Parser(Simulation):
     def __init__(self) -> None:
         """
             Create Graph obj (Graph()) and open map file
@@ -29,6 +30,12 @@ class Parser:
 
         self.comments = 0
         try:
+
+            if not map_path.strip().endswith(".txt"):
+                raise ParsingError(
+                    "ERROR: Map file should be .txt format"
+                )
+
             with open(map_path, "r")as file:
                 for index, line in enumerate(file, start=1):
                     line = line.strip()
@@ -64,7 +71,14 @@ class Parser:
                 f"Permission denied while reading '{map_path}'. "
                 "Check the file permissions."
             )
+        except OSError:
+            raise ParsingError(
+                "ERROR: Cannot acsses To the gevin file ."
+                "File given not a valid path, or not dir"
+            )
+
         self.check()
+
         return self.graph
 
     def valid_drones_nb(self, line: list, index: int) -> None:
@@ -183,9 +197,12 @@ class Parser:
             raise ParsingError(
                 f"Line {index}: metadata should be inside squre brackets :)"
             )
+
         metadata = metadata.removeprefix('[').removesuffix(']').strip().split()
+
         if not metadata:
             raise ParsingError(f"Line {index}: Metadata is empty")
+
         for data in metadata:
             try:
                 key, value = data.split('=')
@@ -194,6 +211,7 @@ class Parser:
                     f"Line {index}: Invalid metadata Argument\n"
                     "exanple: key=value"
                 )
+
             if not value:
                 raise ParsingError(
                     f"Line {index}: Empty value {key}=''"
@@ -207,15 +225,23 @@ class Parser:
             if key in found:
                 raise ParsingError(f"Line {index}: key {key} is duplacated")
 
-            if key == "max_drones":
+            if key == "color":
+                if value.isdigit():
+                    raise ParsingError(
+                        f"Line {index}: Color should be valid color "
+                        "string not a number ."
+                    )
+            elif key == "max_drones":
                 value = self.valid_integer(value, index)
                 if value <= 0:
                     raise ParsingError(
                         f"Line {index}: Max_drone argument should be"
-                        "should be valid positive integer .")
+                        "should be valid positive integer ."
+                    )
             elif key == "zone":
                 if value not in zone_t:
                     raise ParsingError(f"Line {index}: Inkown zone type :)")
+
             found[key] = value
 
         return found
@@ -307,9 +333,42 @@ class Parser:
                 "ERROR: No End zone included"
                 )
 
+        if not self.djikstra(self.graph.start, self.graph.end):
+            raise MapError(
+                "Error: theres No path between start zone and end Zone"
+            )
+
         for zone in self.graph.zones.values():
             if not zone.connections:
                 raise ParsingError(
-                    f"ERROR: Zone '{zone.name}' is deconnected .\n"
+                    f"ERROR: Zone={zone.name} is deconnected .\n"
                     "Evry Zone in map should be "
                     "connected with others .")
+
+        self.map_validate()
+
+    def map_validate(self) -> None:
+        cach: set = set()
+        path: Any = []
+
+        for zone in self.graph.zones.values():
+
+            if zone == self.graph.end:
+                continue
+
+            if zone in cach:
+                continue
+
+            path = self.bfs_search(zone, self.graph.end)
+
+            if not path:
+                s_zone = self.graph.zones[zone.name]
+                raise MapError(
+                    "ERROR: THe folowing Maps is Deconnected from the Graph: "
+                    f"({s_zone.name} "
+                    f"{' '.join([z for z in s_zone.connections])})"
+                )
+
+            for seen_zone, cost in path:
+                zone = self.graph.zones[seen_zone]
+                cach.add(zone)

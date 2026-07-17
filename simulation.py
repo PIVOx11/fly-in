@@ -1,4 +1,3 @@
-from error_handling import MapError
 from Graph import Graph, Zone, Drone
 from collections import deque
 import heapq
@@ -27,12 +26,6 @@ class Simulation:
         self.graph: Graph = graph
         self.paths: list[Path] = []
 
-    def graph_validate(self) -> None:
-        path = self.bfs_search(self.graph.start, self.graph.end)
-        if not path:
-            raise MapError(
-                "There is no path between start and end point .")
-
     def bfs_search(
             self, start: Zone, target: Zone
             ) -> list[tuple[str, int]] | None:
@@ -55,10 +48,11 @@ class Simulation:
             for connection in zone.connections.values():
                 n = connection.first if connection.first != zone\
                     else connection.second
-                if n not in visited or n.zone_type == "blocked":
+                if n not in visited:
                     visited.add(n)
                     parent[n] = zone
                     queue.append(n)
+
         return None
 
     def drone_path(self) -> list[Path]:
@@ -240,83 +234,77 @@ class Simulation:
     def output(self, simulation: dict) -> None:
         if not simulation:
             return
-        from rich import print
+        from rich import print as r_print
         COLORS = {
-            "default": "grey70",
-            "black": "black",
-            "white": "white",
-            "grey": "grey70",
-            "gray": "grey70",
-            "red": "red",
-            "darkred": "dark_red",
-            "maroon": "dark_red",
-            "crimson": "red3",
-            "firebrick": "red3",
-            "salmon": "salmon1",
-            "pink": "hot_pink",
-            "orange": "orange3",
-            "coral": "coral",
-            "gold": "yellow",
-            "yellow": "yellow",
-            "khaki": "khaki1",
-            "green": "green",
-            "lime": "green3",
-            "olive": "olive",
-            "forest": "green4",
-            "darkgreen": "dark_green",
-            "spring": "spring_green3",
-            "blue": "blue",
-            "navy": "navy_blue",
-            "sky": "sky_blue1",
-            "cyan": "cyan",
-            "teal": "cyan3",
-            "turquoise": "turquoise2",
-            "aqua": "bright_cyan",
-            "purple": "magenta",
-            "violet": "violet",
-            "indigo": "purple4",
-            "lavender": "plum1",
-            "magenta": "magenta",
-            "brown": "brown",
-            "tan": "tan",
-            "chocolate": "sandy_brown",
-            "silver": "grey85",
-            "beige": "wheat1",
+            "default": "grey70", "black": "black",
+            "white": "white", "grey": "grey70",
+            "gray": "grey70", "red": "red",
+            "darkred": "dark_red", "maroon": "dark_red",
+            "crimson": "red3", "firebrick": "red3",
+            "salmon": "salmon1", "pink": "hot_pink",
+            "orange": "orange3", "coral": "coral",
+            "gold": "yellow", "yellow": "yellow",
+            "khaki": "khaki1", "green": "green",
+            "lime": "green3", "olive": "olive",
+            "forest": "green4", "darkgreen": "dark_green",
+            "spring": "spring_green3", "blue": "blue",
+            "navy": "navy_blue", "sky": "sky_blue1",
+            "cyan": "cyan", "teal": "cyan3",
+            "turquoise": "turquoise2", "aqua": "bright_cyan",
+            "purple": "magenta", "violet": "violet",
+            "indigo": "purple4", "lavender": "plum1",
+            "magenta": "magenta", "brown": "brown",
+            "tan": "tan", "chocolate": "sandy_brown",
+            "silver": "grey85", "beige": "wheat1",
             "rainbow": "bold bright_magenta",
             }
 
         for turn, data in simulation.items():
-            print(f"Turn{turn}: ", end="")
+            r_print(
+                f"[cyan][italic][bold]Turn{turn}: "
+                "[/italic][/bold][/cyan]", end=""
+                )
 
             for move in data:
                 (drone, dest), = move.items()
+
                 if "-" in dest:
                     zone1, zone2 = dest.split('-')
-                    zone1, zone2 = self.graph.zones[zone1],\
+                    zone1, zone2 = self.graph.zones[zone1], \
                         self.graph.zones[zone2]
 
                     color1, color2 = zone1.color.lower(), zone2.color.lower()
 
                     if color1 not in COLORS:
                         color1 = "default"
+
                     if color2 not in COLORS:
                         color2 = "default"
 
-                    print(
-                        f"{drone}-[{color1}]{zone1.name}[/{color1}]--"
-                        f"[{color2}]{zone2.name}[/{color2}]",
-                        end=" "
+                    color1 = COLORS[color1]
+                    color2 = COLORS[color2]
+
+                    r_print(
+                        f"{drone}-[{color1}]{zone1.name}-[/{color1}]",
+                        end=""
+                    )
+                    r_print(
+                        f"[{color2}]-{zone2.name}[/{color2}]", end=" "
                     )
 
                 else:
                     zone = self.graph.zones[dest]
                     color = zone.color.lower()
 
-                    if not color in COLORS:
+                    if color not in COLORS:
                         color = "default"
 
-                    print(
-                        f"{drone}-[{COLORS[color]}]{zone.name}[/{COLORS[color]}]", end=" "
+                    color = COLORS[color]
+                    r_print(
+                        f"{drone}-[{color}]{zone.name}[/{color}]", end=" "
                         )
             print()
-                
+        r_print(
+            f"\n[italic][bold][cyan]Simulation Done withen {turn}"
+            " Turn .[/cyan][/italic][/bold]\n"
+            )
