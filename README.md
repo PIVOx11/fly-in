@@ -1,4 +1,4 @@
-# *This project has been created as part of the 42 curriculum by <blidriss>.*
+# *This project has been created as part of the 42 curriculum by blidriss.*
 
 # Fly-in
 
@@ -15,6 +15,8 @@ The map is described in a text file and parsed into a graph where:
 
 The program computes valid paths for every drone, schedules their movements while avoiding capacity conflicts, and generates a turn-by-turn simulation.
 
+To help visualize the execution, the project also includes a graphical interface built with the Arcade library. The visualization animates drone movements, displays the graph structure, and allows the user to replay the simulation.
+
 ---
 
 ## Features
@@ -23,9 +25,9 @@ The program computes valid paths for every drone, schedules their movements whil
 * Graph-based map representation.
 * Shortest-path computation using Dijkstra's algorithm.
 * Multi-path generation with yen algorithm for drone routing.
-* Turn-based drone scheduler.
 * Capacity management for hubs and connections.
 * Support for restricted zones.
+* Display visualization using the Arcade library.
 * Colorized terminal simulation output using Rich.
 
 ---
@@ -35,10 +37,11 @@ The program computes valid paths for every drone, schedules their movements whil
 ```text
 .
 ├── maps/              # Simulation maps
-├── erros.             # Errors Types
+├── erros.py           # Errors Types
 ├── parser.py          # Map parser and validation
 ├── simulation.py      # Drone scheduler and simulation logic
 ├── Graph.py           # Core graph data structures
+└── display.py         # Arcade Visualisation
 ├── main.py            # Program entry point
 └── README.md
 ```
@@ -51,6 +54,7 @@ The program computes valid paths for every drone, schedules their movements whil
 
 * Python 3.10+
 * Rich
+* arcade
 
 ### Installation
 
@@ -96,7 +100,7 @@ Drone movement is executed in **turns**. Before moving, each drone checks the ca
 
 ---
 
-## Map Format
+## Map and Output Format
 
 A map defines:
 
@@ -123,7 +127,7 @@ connection: waypoint1-waypoint2
 connection: waypoint2-goal
 ```
 
-Output Example:
+Terminal Output Example:
 
 ```text
 Turn1: D1-waypoint1 
@@ -134,6 +138,9 @@ Turn4: D2-goal
 Simulation Done withen 4 Turn .
 ```
 
+Arcade Visualistion Example:
+
+![Drone](assets/Screenshot from 2026-07-18 11-58-22.png)
 ---
 
 ## Simulation
@@ -150,15 +157,15 @@ The simulator records every movement and produces a replay that can be printed t
 
 ## Visualization
 
-The simulation output is displayed directly in the terminal using the **Rich** library. Each turn is rendered in a clear, colorized format, making it easy to follow drone movements and distinguish between hubs, restricted paths, and completed deliveries.
+The Arcade viewer displays:
 
-The terminal interface provides:
+* The graph structure
+* Drone animations
+* Turn progression
+* Drone identifiers
+* Replay controls
 
-* Turn-by-turn simulation output
-* Colorized drone movements
-* Highlighted hubs and restricted connections
-
-The visualization is independent of the simulation logic and simply renders the generated simulation data, allowing the execution to be replayed consistently.
+The visualization is independent of the simulation logic and uses the generated replay data to animate drone movement.
 
 
 ---
@@ -178,6 +185,8 @@ https://youtu.be/4jyESQDrpls?si=ctn2zo-m0NpUi5VD
 https://youtu.be/bZkzH5x0SKU?si=1iY0rzNBSpKvep1Z
 
 https://neo4j.com/docs/graph-data-science/current/algorithms/yens/
+
+https://api.arcade.academy/en/3.3.3/#
 
 ### AI Usage
 * Explaining algorithms and Python concepts.

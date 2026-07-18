@@ -253,3 +253,6 @@ class Display(arcade.Window):
 
         if key == arcade.key.SPACE:
             self.play = not self.play
+
+        if key == arcade.key.ESCAPE:
+            self.arcade.exit()

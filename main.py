@@ -3,7 +3,7 @@ from parser import Parser
 from errors import ParsingError, MapError
 from simulation import Simulation
 from rich import print as over_print
-
+from display import Display
 
 if __name__ == "__main__":
     file: str
@@ -23,6 +23,9 @@ if __name__ == "__main__":
         sim = Simulation(graph)
         sim_data = sim.run()
         sim.output(sim_data)
+        dispay = Display(sim_data, graph)
+        dispay.run()
+
     except (ParsingError, MapError) as e:
         over_print(f"[red]{e}[/red]")
     except Exception:
