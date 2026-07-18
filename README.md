@@ -140,7 +140,7 @@ Simulation Done withen 4 Turn .
 
 Arcade Visualistion Example:
 
-![Drone](assets/Screenshot from 2026-07-18 11-58-22.png)
+![Display](assets/arcade_example.png)
 ---
 
 ## Simulation
@@ -164,6 +164,14 @@ The Arcade viewer displays:
 * Turn progression
 * Drone identifiers
 * Replay controls
+* Arcade features
+  * Resizable window
+  * Keyboard controls
+    * **R** — Restart the simulation
+    * **↑** — Increase simulation speed
+    * **↓** — Decrease simulation speed
+    * **Space** — Pause/Resume the simulation
+    * **Escape** — Exit
 
 The visualization is independent of the simulation logic and uses the generated replay data to animate drone movement.
 
