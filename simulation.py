@@ -345,6 +345,6 @@ class Simulation:
                         )
             print()
         r_print(
-            f"\n[italic][bold][cyan]Simulation Done withen {turn}"
+            f"\n[italic][bold][cyan]Simulation completed in {turn}"
             " Turn .[/cyan][/italic][/bold]\n"
             )
