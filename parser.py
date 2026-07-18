@@ -65,7 +65,8 @@ class Parser(Simulation):
 
                     if index - self.comments == 1 and line[0] != "nb_drones":
                         raise ParsingError(
-                            f"Line {index}: first line should contain the 'nb_drones'"
+                            f"Line {index}: first line should "
+                            "contain the 'nb_drones'"
                         )
 
                     if line[0] in handler:
@@ -294,7 +295,7 @@ class Parser(Simulation):
             method to validate connection data
         """
         max_link = 1
-        line = line[1].split()
+        line = line[1].split(" ", 1)
         zones, metadata = line[0], line[1] if len(line) > 1 else None
 
         if metadata and metadata.startswith('#'):
@@ -342,7 +343,6 @@ class Parser(Simulation):
             Method to validate Connetctions metadata .
         """
         AUTHO = {"max_link_capacity"}
-
         if not metadata.startswith('[') or not metadata.endswith(']'):
             raise ParsingError(
                 f"Line {index}: Metadata should include "

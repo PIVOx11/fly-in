@@ -249,10 +249,11 @@ class Display(arcade.Window):
 
         if key == arcade.key.DOWN:
             self.drone_speed = max(
-                0.01, self.drone_speed - 0.01)
+                0.01, self.drone_speed - 0.01
+                )
 
         if key == arcade.key.SPACE:
             self.play = not self.play
 
         if key == arcade.key.ESCAPE:
-            self.arcade.exit()
+            arcade.exit()

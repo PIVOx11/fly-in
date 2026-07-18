@@ -82,7 +82,6 @@ class Simulation:
             best_path = min(self.paths, key=lambda x: x.cost + len(x.assign))
             best_path.assign.append(drone)
             drone.update_data(best_path.path)
-            print(drone, [zone.name for zone in best_path.path])
 
         return self.paths
 
@@ -134,7 +133,10 @@ class Simulation:
 
         return sim_data
 
-    def djikstra(self, start: Zone, target: Zone, blocked_zones: list = None) -> list[Zone] | None:
+    def djikstra(
+            self, start: Zone, target: Zone,
+            blocked_zones: list | None = None
+            ) -> list[Zone] | None:
         """
             algorithm method to Find The most cheapest Path from
             stariting slected Zone to a target Zone and retuern it
