@@ -15,7 +15,7 @@ The map is described in a text file and parsed into a graph where:
 
 The program computes valid paths for every drone, schedules their movements while avoiding capacity conflicts, and generates a turn-by-turn simulation.
 
-To help visualize the execution, the project also includes a graphical interface built with the Arcade library. The visualization animates drone movements, displays the graph structure, and allows the user to replay the simulation.
+To help visualize the execution, the project provides both a colorized terminal output using Rich and an interactive graphical viewer built with the Arcade library.
 
 ---
 
@@ -24,7 +24,7 @@ To help visualize the execution, the project also includes a graphical interface
 * Parse and validate custom map files.
 * Graph-based map representation.
 * Shortest-path computation using Dijkstra's algorithm.
-* Multi-path generation with yen algorithm for drone routing.
+* Multi-path generation using Yen's algorithm.
 * Capacity management for hubs and connections.
 * Support for restricted zones.
 * Display visualization using the Arcade library.
@@ -41,7 +41,7 @@ To help visualize the execution, the project also includes a graphical interface
 ├── parser.py          # Map parser and validation
 ├── simulation.py      # Drone scheduler and simulation logic
 ├── Graph.py           # Core graph data structures
-└── display.py         # Arcade Visualisation
+├── display.py         # Arcade Visualization
 ├── main.py            # Program entry point
 └── README.md
 ```
@@ -54,7 +54,7 @@ To help visualize the execution, the project also includes a graphical interface
 
 * Python 3.10+
 * Rich
-* arcade
+* Arcade
 
 ### Installation
 
@@ -65,7 +65,7 @@ git clone <repository-url>
 cd fly-in
 ```
 
-Install the required packages and Create the virtual environment::
+Install the required packages and create the virtual environment:
 
 ```bash
 make install
@@ -75,12 +75,12 @@ make install
 
 ### Running the project
 
-Run the simulation with with default map:
+Run the simulation with default map:
 
 ```bash
 make run
 ```
-Or use a one of provided maps in "maps/" dir
+Or use one of the provided maps in the `maps/` directory.
 
 Example:
 
@@ -135,7 +135,7 @@ Turn2: D1-waypoint2 D2-waypoint1
 Turn3: D1-goal D2-waypoint2 
 Turn4: D2-goal 
 
-Simulation Done withen 4 Turn .
+Simulation completed in 4 turns.
 ```
 
 Arcade Visualistion Example:
@@ -151,7 +151,7 @@ Each turn, every drone attempts to move toward its destination while respecting:
 * Connection capacities
 * Restricted-zone traversal rules
 
-The simulator records every movement and produces a replay that can be printed to the terminal
+The simulator records every movement and produces a replay that can be printed to the terminal.
 
 ---
 
@@ -163,7 +163,7 @@ The Arcade viewer displays:
 * Drone animations
 * Turn progression
 * Drone identifiers
-* Replay controls
+* Simulation controls
 * Arcade features
   * Resizable window
   * Keyboard controls
@@ -181,21 +181,24 @@ The visualization is independent of the simulation logic and uses the generated 
 ## Technical Choices
 
 * **Dijkstra's algorithm** is used for shortest-path computation.
-* Multiple candidate paths are generated to reduce congestion.
-* The simulation is executed turn by turn to guarantee deterministic behavior.
+* Yen's algorithm is used to generate multiple candidate paths and reduce congestion.
 * Arcade is used to provide a lightweight real-time visualization of the simulation.
 
 ---
 
 ## Resources
-https://youtu.be/4jyESQDrpls?si=ctn2zo-m0NpUi5VD
+* https://youtu.be/4jyESQDrpls?si=ctn2zo-m0NpUi5VD
 
-https://youtu.be/bZkzH5x0SKU?si=1iY0rzNBSpKvep1Z
+* https://youtu.be/bZkzH5x0SKU?si=1iY0rzNBSpKvep1Z
 
-https://neo4j.com/docs/graph-data-science/current/algorithms/yens/
+* https://neo4j.com/docs/graph-data-science/current/algorithms/yens/
 
-https://api.arcade.academy/en/3.3.3/#
+* https://api.arcade.academy/en/3.3.3/#
 
 ### AI Usage
+
+AI tools were used for:
+
 * Explaining algorithms and Python concepts.
 * Discussing implementation ideas and architectural choices.
+* Reviewing code and documentation.
