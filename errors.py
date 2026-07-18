@@ -4,6 +4,7 @@ class ParsingError(Exception):
     """
     pass
 
+
 class MapError(Exception):
     """
         Exception Class for map error handling

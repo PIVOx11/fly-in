@@ -7,15 +7,16 @@ from typing import Any
 
 class Path:
     """
-        Class To creat the Path obj and store it's data
-        properties   
+        Class To creat the Path obj and store it properties
     """
     def __init__(self, cost: int, path: list[Zone]):
+        """Initialize the path obj"""
         self.assign: list[Drone] = []
         self.cost = cost
         self.path = path
 
     def __repr__(self) -> str:
+        """Define the obj repr"""
         return (
                 f"Path: {[zone.name for zone in self.path]}\n"
                 f"Cost: {self.cost}\n"
@@ -25,13 +26,24 @@ class Path:
 
 
 class Simulation:
+    """
+        Simulation Class to run and sotre simulation info
+        take the Graph obj with valid map and data and,
+        extract the available path't to run the drone simulation .
+    """
     def __init__(self, graph: Graph):
+        """Initialize simulation obj with valid graph"""
         self.graph: Graph = graph
         self.paths: list[Path] = []
 
     def bfs_search(
             self, start: Zone, target: Zone
             ) -> list[tuple[str, int]] | None:
+        """
+            Bfs search algorithm to valid map, and return
+            The most shortest path ot None if threse no
+            path between start_zone to end_zone
+        """
         queue = deque([start])
         visited = {start}
         parent = {start: None}
@@ -59,6 +71,10 @@ class Simulation:
         return None
 
     def drone_path(self) -> list[Path]:
+        """
+            Method to generate valid short path with yen algorithm
+            and assign it to the drones .
+        """
         for path in self.yen(4):
             self.paths.append(Path(path[0], path[1]))
 
@@ -70,11 +86,17 @@ class Simulation:
         return self.paths
 
     def create_drones(self) -> None:
+        """
+            Method to create drones .
+        """
         for id in range(1, self.graph.drone_count + 1):
             self.graph.drones.append(Drone(id))
         self.graph.start.drones = self.graph.drones[:]
 
     def run(self) -> dict[int, list[dict[Drone, str]]]:
+        """
+            scheduler Method to run the simulation and manage drones trafic .
+        """
         self.create_drones()
         self.drone_path()
         sim_data: dict[int, list[dict[Drone, str]]] = {}
@@ -113,8 +135,9 @@ class Simulation:
 
     def djikstra(self, start: Zone, target: Zone) -> list[Zone] | None:
         """
-            Find The most cheapest Path from
-            stariting slected Zone to a target Zone :)
+            algorithm method to Find The most cheapest Path from
+            stariting slected Zone to a target Zone and retuern it
+            ot None if theres not path at all .
         """
 
         visited = set()
@@ -165,6 +188,10 @@ class Simulation:
         return None
 
     def yen(self, path_count: int) -> list[tuple[int, list[Zone]]]:
+        """
+            algorithm to generate multiple short path
+            using djikstra algorithm .
+        """
         valid_paths: list[tuple[int, list[Zone]]] = []
 
         path = self.djikstra(self.graph.start, self.graph.end)
@@ -218,6 +245,9 @@ class Simulation:
         return valid_paths
 
     def get_path_cost(self, path: list[Zone] | Any) -> tuple[int, list[Zone]]:
+        """
+            Method to get cost of given path
+        """
         cost = 0
 
         for zone in path:
@@ -226,6 +256,10 @@ class Simulation:
         return (cost - 1, path)
 
     def connections_handler(self, connections: set, active: bool) -> None:
+        """
+            helper Method for yen algorithm to activate and desactivate
+            the selected connection .
+        """
         if active:
             for c in connections:
                 c.active = False
@@ -235,6 +269,9 @@ class Simulation:
             c.active = True
 
     def output(self, simulation: dict) -> None:
+        """
+            Output method to print simulation result with rich lib .
+        """
         if not simulation:
             return
         from rich import print as r_print

@@ -1,6 +1,6 @@
 import sys
 from parser import Parser
-from error_handling import ParsingError, MapError
+from errors import ParsingError, MapError
 from simulation import Simulation
 from rich import print as over_print
 
@@ -23,7 +23,7 @@ if __name__ == "__main__":
         sim = Simulation(graph)
         sim_data = sim.run()
         sim.output(sim_data)
-        # display = Display(sim_data, graph)
-        # display.run()
     except (ParsingError, MapError) as e:
         over_print(f"[red]{e}[/red]")
+    except Exception:
+        over_print("unexpected error")

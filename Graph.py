@@ -109,7 +109,7 @@ class Connection:
 
 class Graph:
     """
-        Graph Class, to store zones and 
+        Graph Class, to store zones and
         connections and drones .
     """
     def __init__(self) -> None:

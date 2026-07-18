@@ -1,4 +1,4 @@
-from error_handling import ParsingError, MapError
+from errors import ParsingError, MapError
 from Graph import Graph, Zone
 from typing import Any
 from typing import Callable
@@ -6,6 +6,10 @@ from simulation import Simulation
 
 
 class Parser(Simulation):
+    """
+        Parser Class, parse and validate a given map file and return
+        valid graph with zones and connections .
+    """
     def __init__(self) -> None:
         """
             Create Graph obj (Graph()) and open map file
@@ -15,9 +19,15 @@ class Parser(Simulation):
         self.coordinates: set[tuple] = set()
 
     def save(self, line: str, index: int) -> None:
+        """
+            save Connections to handle at the end of file
+        """
         self.con_To_create.append((line, index))
 
     def Graph_generator(self, map_path: str) -> Graph:
+        """
+            parse the map file and build a valid Graph obj
+        """
         self.graph: Graph = Graph()
         line: Any
 
@@ -67,7 +77,7 @@ class Parser(Simulation):
                     self.valid_connection(line, index)
         except FileNotFoundError:
             raise ParsingError(
-                f"Map file '{map_path}' was not found."
+                f"Map file '{map_path}' not found."
             )
         except PermissionError:
             raise ParsingError(
@@ -85,6 +95,9 @@ class Parser(Simulation):
         return self.graph
 
     def valid_drones_nb(self, line: list, index: int) -> None:
+        """
+            Method to validate the nb of drones argument .
+        """
         if self.graph.drone_count:
             raise ParsingError(
                 f"Line {index}: Drone number Argument are duplicated.\n"
@@ -123,6 +136,9 @@ class Parser(Simulation):
             )
 
     def valid_hub(self, line: str, index: int) -> None:
+        """
+            Method to valid Hubs and creat Zone obj .
+        """
         data = line[1].split(maxsplit=3)
         metadata: Any
         if len(data) < 3:
@@ -177,6 +193,9 @@ class Parser(Simulation):
         self.graph.add_zone(zone)
 
     def valid_name(self, name: str, index: int) -> str:
+        """
+            validate the name of given zone .
+        """
         if "-" in name:
             raise ParsingError(
                 f"Line {index}: Wrong Name format, name "
@@ -192,6 +211,9 @@ class Parser(Simulation):
         return name
 
     def valid_integer(self, nb: str | int, index: int) -> int:
+        """
+            Validate The integer's arguments
+        """
         try:
             nb = int(nb)
         except ValueError:
@@ -201,6 +223,9 @@ class Parser(Simulation):
         return nb
 
     def valid_hub_metadata(self, metadata: Any, index: int) -> dict:
+        """
+            Method validate zones metadata fields
+        """
         AUTHO = {"max_drones", "zone", "color"}
         zone_t = {"normal", "blocked", "restricted", "priority"}
         found = {}
@@ -259,6 +284,9 @@ class Parser(Simulation):
         return found
 
     def valid_connection(self, line: Any, index: int) -> None:
+        """
+            method to validate connection data
+        """
         max_link = 1
         line = line[1].split()
         zones, metadata = line[0], line[1] if len(line) > 1 else None
@@ -304,6 +332,9 @@ class Parser(Simulation):
 
     def valid_connections_metadata(
             self, metadata: str, index: int) -> int:
+        """
+            Method to validate Connetctions metadata .
+        """
         AUTHO = {"max_link_capacity"}
 
         if not metadata.startswith('[') or not metadata.endswith(']'):
