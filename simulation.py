@@ -82,11 +82,12 @@ class Simulation:
             best_path = min(self.paths, key=lambda x: x.cost + len(x.assign))
             best_path.assign.append(drone)
             drone.update_data(best_path.path)
+            print(drone, [zone.name for zone in best_path.path])
 
         return self.paths
 
     def create_drones(self) -> None:
-        """
+        """best_path.path
             Method to create drones .
         """
         for id in range(1, self.graph.drone_count + 1):
@@ -133,14 +134,14 @@ class Simulation:
 
         return sim_data
 
-    def djikstra(self, start: Zone, target: Zone) -> list[Zone] | None:
+    def djikstra(self, start: Zone, target: Zone, blocked_zones: list = None) -> list[Zone] | None:
         """
             algorithm method to Find The most cheapest Path from
             stariting slected Zone to a target Zone and retuern it
             ot None if theres not path at all .
         """
 
-        visited = set()
+        visited = set(blocked_zones or [])
         parent = {start: None}
         distance: defaultdict = defaultdict(lambda: float("inf"))
         distance[start] = 0
@@ -159,10 +160,8 @@ class Simulation:
             visited.add(zone)
 
             if zone == target:
-                total = 0
 
                 while zone:
-                    total += zone.get_cost()
                     path.append(zone)
                     zone = parent[zone]
 
@@ -175,7 +174,7 @@ class Simulation:
                     continue
 
                 if neighbor.zone_type == "priority":
-                    cost = 0.7
+                    cost = 0.9
                 else:
                     cost = neighbor.get_cost()
                 new_dis = distance[zone] + cost
@@ -189,7 +188,7 @@ class Simulation:
 
     def yen(self, path_count: int) -> list[tuple[int, list[Zone]]]:
         """
-            algorithm to generate multiple short path
+            algorithm to generate multiple shortes path's
             using djikstra algorithm .
         """
         valid_paths: list[tuple[int, list[Zone]]] = []
@@ -201,11 +200,13 @@ class Simulation:
         old_path: Any
 
         while len(valid_paths) < path_count:
-            path = valid_paths[-1][1]
-            for i in range(len(path) - 1):
 
-                root = path[:i + 1]
-                connection = root[-1].connections[path[i + 1].name]
+            path = valid_paths[-1][1]
+
+            for i in range(1, len(path) - 1):
+
+                root = path[:i]
+                connection = root[-1].connections[path[i].name]
                 c_to_remove.add(connection)
 
                 for old_path in valid_paths:
@@ -214,13 +215,13 @@ class Simulation:
                     if len(old_path) <= i:
                         continue
 
-                    path_root = old_path[:i + 1]
+                    path_root = old_path[:i]
                     if root == path_root:
                         c_to_remove.add(
-                            path_root[-1].connections[old_path[i + 1].name])
+                            path_root[-1].connections[old_path[i].name])
 
                 self.connections_handler(c_to_remove, True)
-                cand = self.djikstra(root[-1], self.graph.end)
+                cand = self.djikstra(root[-1], self.graph.end, root[:-1])
                 self.connections_handler(c_to_remove, False)
                 c_to_remove.clear()
 
