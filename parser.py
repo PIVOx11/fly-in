@@ -63,11 +63,16 @@ class Parser(Simulation):
                     line = line.split(":", 1)
                     line = [s.strip() for s in line]
 
+                    if index - self.comments == 1 and line[0] != "nb_drones":
+                        raise ParsingError(
+                            f"Line {index}: first line should contain the 'nb_drones'"
+                        )
+
                     if line[0] in handler:
                         handler[line[0]](line, index)
                     else:
                         raise ParsingError(
-                            f"[italic]Line {index + self.comments}: "
+                            f"[italic]Line {index}: "
                             f"Unkown Key: [bold]'{line[0]}'[/bold]\n"
                             "Autorized Keys: [/italic][bold]"
                             f"{[key for key in handler]}[/bold]"
@@ -122,16 +127,17 @@ class Parser(Simulation):
             nb = int(line[0])
             if nb <= 0:
                 raise ParsingError(
-                    f"[italic]Line {index}: Drone number should be "
-                    "Valide positive integer\n"
+                    f"[italic]Line {index}: Drone numbers should be "
+                    "Valide positive integer and (0 < nb_drones)\n"
                     "Example : [green][bold]nb_drones: 12"
                     "[/bold][/green][/italic]"
                 )
+
             self.graph.drone_count = nb
         except ValueError:
             raise ParsingError(
-                f"[italic]Line {index}: Drone number should be "
-                "Valide positive integer\n"
+                f"[italic]Line {index}: Drone numbers should be "
+                "Valide positive integer (0 < nb_drones) \n"
                 "Example : [green][bold]nb_drones: 12[/bold][/green][/italic]"
             )
 

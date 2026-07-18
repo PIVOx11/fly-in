@@ -1,7 +1,3 @@
-Fix The readme file
-
-nb_drones problem
-
 Optomize and demonstrate the algorithms
 
-fix the display and demonstrate it 
+fix the display and demonstrate it
