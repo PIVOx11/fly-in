@@ -28,5 +28,3 @@ if __name__ == "__main__":
 
     except (ParsingError, MapError) as e:
         over_print(f"[red]{e}[/red]")
-    # except Exception:
-    #     over_print("unexpected error")

@@ -15,8 +15,8 @@ clean:
 	rm -rf __pycache__ .mypy_cache
 
 lint:
-	flake8 *.py
-	mypy *.py --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
+	flake8 .
+	mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
 
 debug:
 	uv run -m pdb main.py ${MAP}
