@@ -24,6 +24,7 @@ class Display(arcade.Window):
         self.curent_turn = 0
         self.dron_progress: int | float = 0
         self.drone_speed: int | float = 0.02
+
         self.dis_drones = {
             drone.id: {
                 "x": graph.start.x,
