@@ -6,9 +6,18 @@ from typing import Any
 
 
 class Display(arcade.Window):
+    """
+        Arcade window responsible for visualizing the drone simulation.
+
+        This class renders the graph, animates drone movements between turns,
+        displays the simulation progress, and handles user interaction.
+    """
     def __init__(
             self, sim_data: dict[int, list[dict[Drone, str]]], graph: Graph
             ):
+        """
+            Initialize the visualization window and prepare the simulation state.
+        """
 
         super().__init__(resizable=True, title="Fly-in | by: blidriss")
 
@@ -51,6 +60,10 @@ class Display(arcade.Window):
             self.background_color = arcade.color.PURPLE
 
     def on_update(self, delta_time: float) -> None:
+        """
+            Update the animation every frame.
+        """
+
         if not self.play:
             return
 
@@ -86,6 +99,9 @@ class Display(arcade.Window):
         self.dron_progress += self.drone_speed
 
     def load_new_derections(self) -> None:
+        """
+            Load the movements scheduled for the current simulation turn.
+        """
         drone: Drone | int
 
         for drone in self.dis_drones:
@@ -122,16 +138,24 @@ class Display(arcade.Window):
                     self.dis_drones[drone.id]["moving"] = True
 
     def draw_score(self) -> None:
+        """
+            Draw the current simulation turn counter.
+        """
+
         score = f"TURNS: {min(self.curent_turn, len(self.sim_data))} "\
                 f"/ {len(self.sim_data)}"
+
         arcade.draw_text(
             score, 100,
             self.height - 50,
             arcade.color.WHITE, 18, anchor_x="center",
-            bold=True
+            bold=True, italic=True
         )
 
     def on_draw(self) -> None:
+        """
+            Render the current simulation frame.
+        """
         self.clear()
         if self.background_image:
             arcade.draw_texture_rect(
@@ -191,11 +215,15 @@ class Display(arcade.Window):
             self.draw_drone(id, drone["x"], drone["y"])
 
     def draw_drone(self, id: int, x: int, y: int) -> None:
+        """
+            Draw a single drone at the given graph coordinates.
+        """
         cx, cy, scale = self.get_cordonate(x, y)
 
         arcade.draw_circle_filled(
             cx, cy, scale * 0.2, arcade.color.YELLOW
             )
+
         arcade.draw_circle_outline(
             cx, cy, scale * 0.2 + 2, arcade.color.BLACK,
             border_width=3
@@ -207,29 +235,45 @@ class Display(arcade.Window):
             )
 
     def get_cordonate(
-            self, x: int, y: int) -> tuple[int, int, int]:
+            self, x: int, y: int
+        ) -> tuple[int, int, int]:
+        """
+            Convert graph coordinates into screen coordinates.
+        """
+
         MAX_SCALE = 100
-        usable_width = self.width - self.margin
-        usable_height = self.height - self.margin
 
-        dx = self.max_x - self.min_x
-        dy = self.max_y - self.min_y
+        graph_width = max(self.max_x - self.min_x, 1)
+        graph_height = max(self.max_y - self.min_y, 1)
 
-        scale_x = usable_width / max(dx, 1)
-        scale_y = usable_height / max(dy, 1)
+        available_width = self.width - self.margin
+        available_height = self.height - self.margin
 
-        scale = min(scale_x, scale_y, MAX_SCALE)
+        scale = min(
+            available_width / graph_width,
+            available_height / graph_height,
+            MAX_SCALE
+        )
 
-        start_x = (self.width - dx * scale) / 2
-        start_y = (self.height - dy * scale) / 2
+        offset_x = (self.width - graph_width * scale) / 2
+        offset_y = (self.height - graph_height * scale) / 2
 
-        screen_x = start_x + x * scale
-        screen_y = start_y + y * scale
+        screen_x = offset_x + (x - self.min_x) * scale
+        screen_y = offset_y + (y - self.min_y) * scale
 
         return screen_x, screen_y, scale
 
     def on_key_press(self, key: Any, modifiers: Any) -> None:
+        """
+            Handle keyboard shortcuts controlling the visualization.
 
+            Controls:
+                R      Restart the simulation.
+                UP     Increase animation speed.
+                DOWN   Decrease animation speed.
+                SPACE  Pause or resume the animation.
+                ESC    Close the application.
+        """
         if key == arcade.key.R:
             self.curent_turn = 0
             self.dis_drones = {
@@ -246,7 +290,8 @@ class Display(arcade.Window):
 
         if key == arcade.key.UP:
             self.drone_speed = min(
-                1, self.drone_speed + 0.01)
+                1, self.drone_speed + 0.01
+                )
 
         if key == arcade.key.DOWN:
             self.drone_speed = max(
